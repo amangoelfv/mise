@@ -71,6 +71,37 @@ Cloud Run → **Create service** → *Continuously deploy from a repository*:
 6. **Containers → Variables & secrets:** env var `APP_URL=https://mise-<PROJECT_NUMBER>.asia-south1.run.app`; *Reference a secret* for `GEMINI_API_KEY` and `SESSION_SECRET` (create them in Secret Manager first; accept the prompt to grant the service account access). Add `CART_API_URL` / `CART_API_KEY` later.
 7. **Create.** Every push to `main` now rebuilds and deploys. Check the URL Cloud Run shows matches `APP_URL`; if not, edit the variable and deploy a new revision.
 
+**Permissions the build needs** (newer projects don't grant them by default; run in Cloud Shell):
+
+```bash
+# Cloud Build's service agent reads the repo through Developer Connect
+gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:service-$PN@gcp-sa-cloudbuild.iam.gserviceaccount.com" --role="roles/developerconnect.tokenAccessor" --condition=None
+# The trigger's service account fetches source, pushes the image and deploys
+for r in roles/developerconnect.readTokenAccessor roles/run.builder roles/run.developer roles/iam.serviceAccountUser; do gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$PN-compute@developer.gserviceaccount.com" --role="$r" --condition=None; done
+# Runtime access to secrets
+for s in GEMINI_API_KEY SESSION_SECRET; do gcloud secrets add-iam-policy-binding "$s" --member="serviceAccount:$PN-compute@developer.gserviceaccount.com" --role="roles/secretmanager.secretAccessor"; done
+gcloud artifacts repositories create cloud-run-source-deploy --repository-format=docker --location=$REGION
+```
+
+**If you edit the trigger in Cloud Build:** keep *Type: Cloud Build configuration file*. The trigger editor's *Dockerfile* type only builds and pushes; it never deploys. A working inline config:
+
+```yaml
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "asia-south1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/mise:$COMMIT_SHA", "."]
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: ["push", "asia-south1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/mise:$COMMIT_SHA"]
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args: ["run", "deploy", "mise", "--image=asia-south1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/mise:$COMMIT_SHA", "--region=asia-south1", "--quiet"]
+timeout: 1200s
+options:
+  logging: CLOUD_LOGGING_ONLY  # required when the trigger runs as a chosen service account
+```
+
 ## Deploy from your machine
 
 ```bash
