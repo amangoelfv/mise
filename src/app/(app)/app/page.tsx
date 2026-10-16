@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Flow } from "@/components/flow/flow";
 import { cartApiMode } from "@/lib/cart-api";
 import { zeptoState } from "@/lib/connectors";
+import { CATALOG } from "@/lib/feed";
 import { getConnections, getUser } from "@/lib/session";
 import { PRIVATE_ROBOTS } from "@/lib/site";
 
@@ -22,6 +23,7 @@ async function SessionFlow({ searchParams }: { searchParams: PageProps<"/app">["
       initialQuery={query}
       zepto={zeptoState(connections)}
       simulatedCart={cartApiMode === "mock"}
+      catalog={CATALOG}
     />
   );
 }
