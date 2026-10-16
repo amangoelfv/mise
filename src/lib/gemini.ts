@@ -92,7 +92,7 @@ const ingredientsSchema = {
   required: ["tip", "items"],
 };
 
-async function generateJson(model: string, prompt: string, schema: object, temperature: number): Promise<unknown> {
+async function generateWith(model: string, prompt: string, schema: object, temperature: number): Promise<unknown> {
   if (!ai) throw new Error("Gemini is not configured");
   const request = (withThinking: boolean) =>
     ai.models.generateContent({
@@ -114,7 +114,33 @@ async function generateJson(model: string, prompt: string, schema: object, tempe
     if (!/thinking/i.test(String(error))) throw error;
     response = await request(false);
   }
-  return JSON.parse(response.text ?? "");
+  const text = response.text?.trim() ?? "";
+  try {
+    return JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, ""));
+  } catch {
+    const finish = response.candidates?.[0]?.finishReason ?? "unknown";
+    throw new Error(`${model} returned unparseable JSON (finishReason=${finish}, ${text.length} chars)`);
+  }
+}
+
+/** Tries each model in order, so one unavailable or overloaded model doesn't fail the request. */
+async function generateJson(models: string[], prompt: string, schema: object, temperature: number): Promise<unknown> {
+  let lastError: unknown;
+  for (const model of [...new Set(models)]) {
+    // Overload (503) and rate limits (429) are often momentary: one quick retry before moving on.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await generateWith(model, prompt, schema, temperature);
+      } catch (error) {
+        lastError = error;
+        const status = (error as { status?: number }).status;
+        console.error(`[gemini] ${model} attempt ${attempt + 1} failed (${status ?? "no status"}):`, error instanceof Error ? error.message : error);
+        if (status !== 503 && status !== 429) break;
+        if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 700));
+      }
+    }
+  }
+  throw lastError;
 }
 
 const record = (v: unknown): Record<string, unknown> => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
@@ -135,7 +161,7 @@ export async function getVariants({ query, diet, avoid }: VariantsInput): Promis
     .filter(Boolean)
     .join("\n");
 
-  const raw = record(await generateJson(FAST_MODEL, prompt, variantsSchema, 0.8));
+  const raw = record(await generateJson([FAST_MODEL, MODEL], prompt, variantsSchema, 0.8));
   if (raw.isDish === false) {
     return { ok: false, message: str(raw.message, "That doesn't sound like a dish. Try “paneer butter masala”.") };
   }
@@ -189,7 +215,7 @@ export async function getIngredients(input: IngredientsInput): Promise<Ingredien
     .filter((line) => line !== null)
     .join("\n");
 
-  const raw = record(await generateJson(MODEL, prompt, ingredientsSchema, 0.4));
+  const raw = record(await generateJson([MODEL, FAST_MODEL], prompt, ingredientsSchema, 0.4));
   const items: CartItem[] = (Array.isArray(raw.items) ? raw.items : [])
     .map(record)
     .filter((i) => str(i.name))
