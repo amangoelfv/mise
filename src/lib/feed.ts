@@ -1,3 +1,4 @@
+import type { CatalogDish, MenuGroup } from "./catalog";
 import type { CartItem, DishStyleId, IngredientCategory, Unit } from "./contract";
 import { POPULAR_DISHES } from "./feed-names";
 import type { DishVariant, IngredientsOk, Source, VariantsOk } from "./types";
@@ -2192,6 +2193,51 @@ export function findDish(query: string): FeedDish | null {
 }
 
 export const dishById = (id: string) => FEED.find((d) => d.id === id)!;
+
+const GROUPS: Record<string, MenuGroup> = {
+  poha: "Breakfast",
+  upma: "Breakfast",
+  "masala-dosa": "Breakfast",
+  "idli-sambar": "Breakfast",
+  "aloo-paratha": "Breakfast",
+  "masala-omelette": "Breakfast",
+  "paneer-butter-masala": "Curries & dals",
+  "butter-chicken": "Curries & dals",
+  "dal-makhani": "Curries & dals",
+  "dal-tadka": "Curries & dals",
+  "palak-paneer": "Curries & dals",
+  chole: "Curries & dals",
+  "egg-curry": "Curries & dals",
+  "chicken-curry": "Curries & dals",
+  "fish-curry": "Curries & dals",
+  "aloo-gobi": "Curries & dals",
+  "chicken-biryani": "Rice & one-pot",
+  "veg-pulao": "Rice & one-pot",
+  "rajma-chawal": "Rice & one-pot",
+  khichdi: "Rice & one-pot",
+  "veg-fried-rice": "Rice & one-pot",
+  "pav-bhaji": "Street & Indo-Chinese",
+  "hakka-noodles": "Street & Indo-Chinese",
+  "chilli-paneer": "Street & Indo-Chinese",
+  "white-sauce-pasta": "Pasta",
+  "red-sauce-pasta": "Pasta",
+};
+
+/** The menu without ingredient lists: small enough to send to the browser for browsing and autocomplete. */
+export const CATALOG: CatalogDish[] = FEED.map((dish) => {
+  const group = GROUPS[dish.id];
+  if (!group) throw new Error(`feed: ${dish.id} has no menu group`);
+  return {
+    id: dish.id,
+    name: dish.name,
+    aliases: dish.aliases,
+    cuisine: dish.cuisine,
+    summary: dish.summary,
+    veg: dish.veg,
+    group,
+    minutes: Math.min(...Object.values(dish.styles).map((s) => s.minutes)),
+  };
+});
 
 const STYLE_ORDER: DishStyleId[] = ["restaurant", "basic", "healthy", "protein"];
 

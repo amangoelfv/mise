@@ -8,7 +8,7 @@ import { ArrowDown, ArrowRight } from "@/components/icons";
 import { JsonCode } from "@/components/json-code";
 import { Orb } from "@/components/orb";
 import { StoreMark } from "@/components/zepto-connect";
-import { dishById, feedVariants } from "@/lib/feed";
+import { CATALOG, dishById, feedVariants } from "@/lib/feed";
 import { DISH_STYLES } from "@/lib/styles";
 import { SITE } from "@/lib/site";
 import type { DishVariant } from "@/lib/types";
@@ -378,8 +378,8 @@ export default function Landing() {
             <h2 className="display reveal mt-8 text-[clamp(2.4rem,6vw,4.6rem)]" style={reveal(1)}>
               So, what are we cooking?
             </h2>
-            <div className="reveal mt-12 w-full text-left" style={reveal(2)}>
-              <ClosingAsk />
+            <div className="reveal relative z-20 mt-12 w-full text-left" style={reveal(2)}>
+              <ClosingAsk catalog={CATALOG} />
             </div>
             <p className="reveal label mt-16 flex gap-4" style={reveal(3)}>
               <span>Mise · made for the Gemini hackathon</span>

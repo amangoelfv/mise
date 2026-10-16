@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import type { CatalogDish } from "@/lib/catalog";
 import { ApiError, api, errorMessage, scaleQuantity } from "@/lib/client";
 import type { CartStatus } from "@/lib/contract";
 import { avoidList, getPrefs } from "@/lib/prefs";
 import type { CartBody, DishVariant, IngredientsOk, VariantsOk, VariantsResult, ZeptoState } from "@/lib/types";
 import { Dialog } from "../dialog";
-import { DishIdeas, DishInput } from "../dish-input";
+import { DishInput } from "../dish-input";
+import { DishMenu } from "../dish-menu";
 import { Orb } from "../orb";
 import { ZeptoConnect } from "../zepto-connect";
 import { CartView, type CartPhase } from "./cart-view";
@@ -29,11 +31,13 @@ export function Flow({
   initialQuery,
   zepto: initialZepto,
   simulatedCart,
+  catalog,
 }: {
   firstName: string;
   initialQuery: string;
   zepto: ZeptoState;
   simulatedCart: boolean;
+  catalog: CatalogDish[];
 }) {
   const [stage, setStage] = useState<Stage>(initialQuery ? "styles" : "ask");
   const [query, setQuery] = useState(initialQuery);
@@ -276,16 +280,20 @@ export function Flow({
       </div>
 
       {stage === "ask" && (
-        <section className="mx-auto mt-8 flex w-full max-w-2xl flex-col">
+        <section className="mx-auto mt-8 flex w-full max-w-3xl flex-col">
           <p className="label animate-rise text-center">Hi {firstName}</p>
           <h1 className="display animate-rise mt-4 text-center text-[clamp(2.3rem,6vw,4rem)] [animation-delay:60ms]">
             What do you want to eat today?
           </h1>
-          <div className="animate-rise mt-12 w-full [animation-delay:120ms]">
-            <DishInput value={query} onChange={setQuery} onSubmit={askDish} autoFocus />
+          {/* z-20: the autocomplete list must sit above the animated siblings below it */}
+          <div className="animate-rise relative z-20 mt-12 w-full [animation-delay:120ms]">
+            <DishInput value={query} onChange={setQuery} onSubmit={askDish} catalog={catalog} autoFocus />
           </div>
-          <div className="animate-rise mt-4 [animation-delay:180ms]">
-            <DishIdeas onPick={askDish} count={12} label="Popular" />
+          <p className="animate-rise mt-3 font-mono text-[11.5px] text-paper/35 [animation-delay:180ms]">
+            Type anything, or pick from the menu below.
+          </p>
+          <div className="animate-rise mt-14 [animation-delay:240ms]">
+            <DishMenu catalog={catalog} onPick={askDish} />
           </div>
         </section>
       )}
