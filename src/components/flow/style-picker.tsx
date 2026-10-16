@@ -1,14 +1,16 @@
 "use client";
 
 import { DISH_STYLES } from "@/lib/styles";
-import type { DishVariant, VariantsOk } from "@/lib/types";
+import type { DishVariant, Source, VariantsOk } from "@/lib/types";
+import { DishIdeas } from "../dish-input";
 import { ArrowLeft, ArrowUpRight, Refresh } from "../icons";
 
-export function SampleBadge() {
+export function SampleBadge({ source }: { source: Source }) {
+  if (source === "gemini") return null;
   return (
     <span className="tag border-turmeric/30 text-turmeric/90">
       <span className="size-1.5 rounded-full bg-turmeric" />
-      Sample data · set GEMINI_API_KEY for any dish
+      {source === "fallback" ? "Gemini is busy · from the built-in menu" : "Built-in menu · set GEMINI_API_KEY for any dish"}
     </span>
   );
 }
@@ -20,19 +22,26 @@ export function StylePicker({
   onPick,
   onRetry,
   onEdit,
+  onPickDish,
 }: {
   query: string;
   variants: VariantsOk | null;
-  error: string | null;
+  error: { message: string; suggestions?: string[] } | null;
   onPick: (variant: DishVariant) => void;
   onRetry: () => void;
   onEdit: () => void;
+  onPickDish: (dish: string) => void;
 }) {
   if (error) {
     return (
       <section className="animate-rise mx-auto mt-8 flex max-w-md flex-col items-center text-center">
-        <h2 className="display text-3xl">Let&apos;s try that again.</h2>
-        <p className="mt-3 text-paper/55">{error}</p>
+        <h2 className="display text-3xl">{error.suggestions?.length ? "Not on the menu yet." : "Let\u2019s try that again."}</h2>
+        <p className="mt-3 text-paper/55">{error.message}</p>
+        {error.suggestions?.length ? (
+          <div className="mt-6 flex justify-center">
+            <DishIdeas onPick={onPickDish} dishes={error.suggestions} count={10} label="Menu" />
+          </div>
+        ) : null}
         <div className="mt-8 flex gap-3">
           <button type="button" onClick={onEdit} className="btn-ghost">
             <ArrowLeft size={17} /> Change dish
@@ -61,9 +70,9 @@ export function StylePicker({
             <span className="printing font-mono text-[13px] text-paper/45">Gemini is working out four ways to cook it</span>
           )}
         </p>
-        {variants?.source === "sample" && (
+        {variants && variants.source !== "gemini" && (
           <div className="mt-4">
-            <SampleBadge />
+            <SampleBadge source={variants.source} />
           </div>
         )}
       </div>

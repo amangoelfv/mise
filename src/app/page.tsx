@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { ClosingAsk } from "@/components/deck/closing-ask";
@@ -7,9 +8,24 @@ import { ArrowDown, ArrowRight } from "@/components/icons";
 import { JsonCode } from "@/components/json-code";
 import { Orb } from "@/components/orb";
 import { StoreMark } from "@/components/zepto-connect";
-import { sampleIngredients, sampleVariants } from "@/lib/sample";
+import { dishById, feedVariants } from "@/lib/feed";
 import { DISH_STYLES } from "@/lib/styles";
+import { SITE } from "@/lib/site";
 import type { DishVariant } from "@/lib/types";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: SITE.name,
+  url: SITE.url,
+  description: SITE.description,
+  applicationCategory: "LifestyleApplication",
+  operatingSystem: "Web",
+  inLanguage: "en-IN",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
+};
 
 const TITLES = ["Mise", "Problem", "Product", "How it works", "Four ways", "Under the hood", "Stores", "Try it"];
 
@@ -103,11 +119,16 @@ const SNIPPET = JSON.stringify(
 );
 
 export default function Landing() {
-  const variants = new Map(sampleVariants().variants.map((v) => [v.style, v]));
-  const itemCounts = new Map(DISH_STYLES.map((s) => [s.id, sampleIngredients(s.id, 2).items.length]));
+  const pasta = dishById("white-sauce-pasta");
+  const variants = new Map(feedVariants(pasta, "sample").variants.map((v) => [v.style, v]));
+  const itemCounts = new Map(DISH_STYLES.map((s) => [s.id, pasta.styles[s.id].items.length]));
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD).replace(/</g, "\\u003c") }}
+      />
       <DeckChrome titles={TITLES} />
       <main id="deck" className="deck h-dvh overflow-y-auto overscroll-none">
         {/* 01 · Cover */}

@@ -1,17 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { POPULAR_DISHES } from "@/lib/feed-names";
 import { ArrowRight } from "./icons";
 
-const IDEAS = [
-  "white sauce pasta",
-  "paneer butter masala",
-  "shakshuka",
-  "thai green curry",
-  "rajma chawal",
-  "chicken biryani",
-  "avocado toast",
-];
+// Placeholder + suggestions come from the built-in menu, so they work even when Gemini doesn't.
+const IDEAS = POPULAR_DISHES.map((dish) => dish.toLowerCase());
 
 /** One big ruled line, like writing on an order pad. */
 export function DishInput({
@@ -73,16 +67,27 @@ export function DishInput({
   );
 }
 
-export function DishIdeas({ onPick, count = 5 }: { onPick: (dish: string) => void; count?: number }) {
+export function DishIdeas({
+  onPick,
+  count = 5,
+  dishes = IDEAS,
+  label = "Try",
+}: {
+  onPick: (dish: string) => void;
+  count?: number;
+  dishes?: string[];
+  label?: string;
+}) {
+  const shown = dishes.slice(0, count).map((d) => d.toLowerCase());
   return (
-    <p className="flex flex-wrap items-baseline gap-x-1 gap-y-1 font-mono text-[12.5px] text-paper/40">
-      <span className="mr-1 uppercase tracking-[0.12em]">Try</span>
-      {IDEAS.slice(0, count).map((dish, i) => (
+    <p className="flex flex-wrap items-baseline gap-x-1 gap-y-1 font-mono text-[12.5px] leading-relaxed text-paper/40">
+      <span className="mr-1 uppercase tracking-[0.12em]">{label}</span>
+      {shown.map((dish, i) => (
         <span key={dish}>
           <button type="button" onClick={() => onPick(dish)} className="text-paper/65 underline-offset-4 transition hover:text-saffron hover:underline">
             {dish}
           </button>
-          {i < count - 1 && <span className="ml-1 text-paper/20">/</span>}
+          {i < shown.length - 1 && <span className="ml-1 text-paper/20">/</span>}
         </span>
       ))}
     </p>

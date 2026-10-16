@@ -5,8 +5,9 @@ import { cartApiMode } from "@/lib/cart-api";
 import { geminiConfigured } from "@/lib/gemini";
 import { zeptoState } from "@/lib/connectors";
 import { getConnections, getUser } from "@/lib/session";
+import { PRIVATE_ROBOTS } from "@/lib/site";
 
-export const metadata = { title: "Settings" };
+export const metadata = { title: "Settings", robots: PRIVATE_ROBOTS };
 
 async function SessionSettings() {
   const user = await getUser();

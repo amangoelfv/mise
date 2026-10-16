@@ -38,7 +38,7 @@ export function Flow({
   const [stage, setStage] = useState<Stage>(initialQuery ? "styles" : "ask");
   const [query, setQuery] = useState(initialQuery);
   const [variants, setVariants] = useState<VariantsOk | null>(null);
-  const [variantsError, setVariantsError] = useState<string | null>(null);
+  const [variantsError, setVariantsError] = useState<{ message: string; suggestions?: string[] } | null>(null);
   const [choice, setChoice] = useState<DishVariant | null>(null);
   const [list, setList] = useState<IngredientsOk | null>(null);
   const [listError, setListError] = useState<string | null>(null);
@@ -83,9 +83,9 @@ export function Flow({
       });
       if (id !== requestId.current) return;
       if (res.ok) setVariants(res);
-      else setVariantsError(res.message);
+      else setVariantsError({ message: res.message, suggestions: res.suggestions });
     } catch (e) {
-      if (id === requestId.current) setVariantsError(errorMessage(e));
+      if (id === requestId.current) setVariantsError({ message: errorMessage(e) });
     }
   }
 
@@ -285,7 +285,7 @@ export function Flow({
             <DishInput value={query} onChange={setQuery} onSubmit={askDish} autoFocus />
           </div>
           <div className="animate-rise mt-4 [animation-delay:180ms]">
-            <DishIdeas onPick={askDish} />
+            <DishIdeas onPick={askDish} count={12} label="Popular" />
           </div>
         </section>
       )}
@@ -298,6 +298,7 @@ export function Flow({
           onPick={chooseStyle}
           onRetry={() => askDish(query)}
           onEdit={() => goTo("ask")}
+          onPickDish={askDish}
         />
       )}
 

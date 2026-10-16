@@ -1,7 +1,8 @@
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import type { CartItem, Diet } from "./contract";
 import { CATEGORIES, STYLES, UNITS, num, oneOf, str, strList } from "./http";
-import { sampleIngredients, sampleVariants } from "./sample";
+import { feedIngredients, feedVariants, findDish } from "./feed";
+import { POPULAR_DISHES } from "./feed-names";
 import { DISH_STYLES, styleById } from "./styles";
 import type { IngredientsInput, IngredientsOk, VariantsInput, VariantsResult } from "./types";
 
@@ -145,8 +146,33 @@ async function generateJson(models: string[], prompt: string, schema: object, te
 
 const record = (v: unknown): Record<string, unknown> => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
 
+/** Thrown when Gemini is down and the built-in menu has nothing sensible to serve instead. */
+export class GeminiUnavailableError extends Error {}
+
+type Offline = "sample" | "fallback";
+
+/** Built-in menu instead of Gemini: the matching dish, or suggestions (never a different dish's data). */
+function offlineVariants(query: string, source: Offline): VariantsResult {
+  const dish = findDish(query);
+  if (dish) return feedVariants(dish, source);
+  return {
+    ok: false,
+    message:
+      source === "sample"
+        ? "Without a Gemini key, Mise cooks from its built-in menu. Pick one of these:"
+        : "Gemini is busy right now and that dish isn't on the built-in menu. Try again in a minute, or pick one of these:",
+    suggestions: POPULAR_DISHES.slice(0, 10),
+  };
+}
+
+function offlineIngredients(input: IngredientsInput, source: Offline): IngredientsOk {
+  const dish = findDish(input.dish) ?? findDish(input.variant.title);
+  if (!dish) throw new GeminiUnavailableError("Gemini is busy right now. Try again in a minute, or pick a dish from the built-in menu.");
+  return feedIngredients(dish, input.style, input.servings, source);
+}
+
 export async function getVariants({ query, diet, avoid }: VariantsInput): Promise<VariantsResult> {
-  if (!ai) return sampleVariants();
+  if (!ai) return offlineVariants(query, "sample");
 
   const prompt = [
     `Someone typed: "${query}"`,
@@ -161,7 +187,13 @@ export async function getVariants({ query, diet, avoid }: VariantsInput): Promis
     .filter(Boolean)
     .join("\n");
 
-  const raw = record(await generateJson([FAST_MODEL, MODEL], prompt, variantsSchema, 0.8));
+  let raw: Record<string, unknown>;
+  try {
+    raw = record(await generateJson([FAST_MODEL, MODEL], prompt, variantsSchema, 0.8));
+  } catch (error) {
+    console.error("[gemini] variants failed on every model; using the built-in menu:", error instanceof Error ? error.message : error);
+    return offlineVariants(query, "fallback");
+  }
   if (raw.isDish === false) {
     return { ok: false, message: str(raw.message, "That doesn't sound like a dish. Try “paneer butter masala”.") };
   }
@@ -192,7 +224,7 @@ export async function getVariants({ query, diet, avoid }: VariantsInput): Promis
 }
 
 export async function getIngredients(input: IngredientsInput): Promise<IngredientsOk> {
-  if (!ai) return sampleIngredients(input.style, input.servings);
+  if (!ai) return offlineIngredients(input, "sample");
 
   const style = styleById(input.style);
   const prompt = [
@@ -215,7 +247,16 @@ export async function getIngredients(input: IngredientsInput): Promise<Ingredien
     .filter((line) => line !== null)
     .join("\n");
 
-  const raw = record(await generateJson([MODEL, FAST_MODEL], prompt, ingredientsSchema, 0.4));
+  const fallback = (reason: unknown) => {
+    console.error("[gemini] ingredients failed on every model; using the built-in menu:", reason instanceof Error ? reason.message : reason);
+    return offlineIngredients(input, "fallback");
+  };
+  let raw: Record<string, unknown>;
+  try {
+    raw = record(await generateJson([MODEL, FAST_MODEL], prompt, ingredientsSchema, 0.4));
+  } catch (error) {
+    return fallback(error);
+  }
   const items: CartItem[] = (Array.isArray(raw.items) ? raw.items : [])
     .map(record)
     .filter((i) => str(i.name))
@@ -237,7 +278,7 @@ export async function getIngredients(input: IngredientsInput): Promise<Ingredien
       };
     });
 
-  if (!items.length) throw new Error("Gemini returned an empty ingredient list");
+  if (!items.length) return fallback("empty ingredient list");
   return {
     ok: true,
     source: "gemini",
