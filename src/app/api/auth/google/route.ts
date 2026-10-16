@@ -1,13 +1,19 @@
 import { googleClientId } from "@/lib/config";
 import { fail, readJson, str } from "@/lib/http";
-import { setUser, verifyGoogleCredential } from "@/lib/session";
+import { setUser, verifyGoogleAccessToken, verifyGoogleCredential } from "@/lib/session";
 
 export async function POST(req: Request) {
   if (!googleClientId) return fail("Google sign-in isn't configured on this deployment.", 400);
-  const credential = str((await readJson(req)).credential, "", 4096);
-  if (!credential) return fail("Missing Google credential.");
+  // accessToken: our custom button (OAuth token client). credential: an ID token (One Tap / rendered button).
+  const body = await readJson(req);
+  const accessToken = str(body.accessToken, "", 4096);
+  const credential = str(body.credential, "", 4096);
+  if (!accessToken && !credential) return fail("Missing Google credential.");
   try {
-    await setUser(await verifyGoogleCredential(credential, googleClientId));
+    const user = accessToken
+      ? await verifyGoogleAccessToken(accessToken, googleClientId)
+      : await verifyGoogleCredential(credential, googleClientId);
+    await setUser(user);
     return Response.json({ ok: true });
   } catch (error) {
     console.error("[auth/google]", error);
