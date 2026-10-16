@@ -8,7 +8,7 @@ Why not Firebase App Hosting: its official support stops at Next 15 (16 is "prev
 
 | Variable | Where | When | Secret |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | `.env.production` (uploaded with the source) | build | no |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | `.env.production` (committed; public values only) | build | no |
 | `NEXT_PUBLIC_DEMO_LOGIN=1` (lets judges skip sign-in) | `.env.production` | build | no |
 | `GEMINI_API_KEY` (or the Vertex vars below) | Secret Manager | runtime | yes |
 | `SESSION_SECRET` (32+ chars; production refuses to start sessions without it) | Secret Manager | runtime | yes |
@@ -52,14 +52,26 @@ for s in GEMINI_API_KEY SESSION_SECRET CART_API_KEY; do
 done
 ```
 
-Create `.env.production` in the repo root (gitignored, but uploaded by `gcloud`):
+Put your Google client ID in `.env.production` (committed on purpose: it only holds public build-time values, and a GitHub-triggered build only sees what's in the repo):
 
 ```bash
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=1234567890-abc.apps.googleusercontent.com
 NEXT_PUBLIC_DEMO_LOGIN=1
 ```
 
-## Deploy
+## Deploy from the console (continuous, from GitHub)
+
+Cloud Run → **Create service** → *Continuously deploy from a repository*:
+
+1. **Developer Connect** → *Set up with Developer Connect*: enable the API, connect GitHub, install the Google app on `amangoelfv/mise` (private repos need it), pick the repo. Branch `^main$`.
+2. **Build type: Dockerfile**, location `/Dockerfile`. Not Go/Node/Python buildpacks: the image runs `node server.js` from Next's standalone output, which `next start` doesn't support.
+3. **Service name** `mise`, **Region** `asia-south1 (Mumbai)`. Neither can change later.
+4. **Authentication:** *Allow public access*. **Billing:** request-based. **Scaling:** min 0 (1 while judging), max 3. **Ingress:** all.
+5. **Containers → Settings:** port 8080, memory 1 GiB, CPU 1, startup CPU boost on.
+6. **Containers → Variables & secrets:** env var `APP_URL=https://mise-<PROJECT_NUMBER>.asia-south1.run.app`; *Reference a secret* for `GEMINI_API_KEY` and `SESSION_SECRET` (create them in Secret Manager first; accept the prompt to grant the service account access). Add `CART_API_URL` / `CART_API_KEY` later.
+7. **Create.** Every push to `main` now rebuilds and deploys. Check the URL Cloud Run shows matches `APP_URL`; if not, edit the variable and deploy a new revision.
+
+## Deploy from your machine
 
 ```bash
 gcloud run deploy $SVC --source . --region $REGION --service-account $SA \
