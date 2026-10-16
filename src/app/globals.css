@@ -1,26 +1,389 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Mise design system. Rationale and usage: BRAND.md */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  --font-dots: var(--font-doto), var(--font-jetbrains), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  --color-ink: #0b0a09;
+  --color-ink-2: #141311;
+  --color-ink-3: #1c1a17;
+  --color-paper: #efebe3;
+  --color-saffron: #ff7a1a;
+  --color-turmeric: #ffc24b;
+  --color-herb: #8cd47e;
+  --color-chili: #ff5c4d;
+  --color-line: rgb(239 235 227 / 0.1);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-rise: rise 0.7s var(--ease-out-expo) both;
+  --animate-fade: fade 0.5s ease both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
   }
 }
 
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-ink);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+  font-stretch: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgb(255 122 26 / 0.35);
+}
+
+/* In the base layer so `outline-none` on ruled inputs (focus shown by their saffron rule) can override it. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-saffron);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Wide, tight display type: the Mise voice at headline size. */
+  .display {
+    font-family: var(--font-sans);
+    font-stretch: 118%;
+    font-weight: 620;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+  .wordmark {
+    font-family: var(--font-sans);
+    font-stretch: 125%;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+  .dots {
+    font-family: var(--font-dots);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgb(239 235 227 / 0.45);
+  }
+
+  .btn,
+  .btn-accent,
+  .btn-ghost {
+    display: inline-flex;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    border-radius: 12px;
+    padding-inline: 1.15rem;
+    font-size: 15px;
+    font-weight: 560;
+    white-space: nowrap;
+    transition:
+      background-color 0.18s,
+      border-color 0.18s,
+      color 0.18s,
+      opacity 0.18s,
+      transform 0.18s;
+  }
+  .btn {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .btn:hover:not(:disabled) {
+    background: #fff;
+  }
+  .btn-accent {
+    background: var(--color-saffron);
+    color: var(--color-ink);
+  }
+  .btn-accent:hover:not(:disabled) {
+    background: #ff8f3d;
+  }
+  .btn-ghost {
+    border: 1px solid var(--color-line);
+    color: rgb(239 235 227 / 0.85);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    border-color: rgb(239 235 227 / 0.28);
+    color: var(--color-paper);
+  }
+  .btn:disabled,
+  .btn-accent:disabled,
+  .btn-ghost:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .btn:active:not(:disabled),
+  .btn-accent:active:not(:disabled),
+  .btn-ghost:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    padding: 0.1rem 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgb(239 235 227 / 0.5);
+  }
+
+  /* Hairline panels; no glass, no glow. */
+  .panel {
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: var(--color-ink-2);
+  }
+
+  /* Receipt: a printed ticket with a perforated bottom edge. */
+  .receipt {
+    position: relative;
+    background: var(--color-ink-2);
+    border: 1px solid var(--color-line);
+    border-bottom: 0;
+    border-radius: 14px 14px 0 0;
+    padding-bottom: 14px;
+    -webkit-mask:
+      radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) bottom / 16px 12px repeat-x,
+      linear-gradient(#000 0 0) top / 100% calc(100% - 12px) no-repeat;
+    mask:
+      radial-gradient(circle 6px at 50% 100%, transparent 98%, #000) bottom / 16px 12px repeat-x,
+      linear-gradient(#000 0 0) top / 100% calc(100% - 12px) no-repeat;
+  }
+
+  /* Dotted leader between a name and its quantity. */
+  .leader {
+    flex: 1;
+    min-width: 1.5rem;
+    align-self: flex-end;
+    margin-bottom: 0.35em;
+    height: 1px;
+    background-image: radial-gradient(circle, rgb(239 235 227 / 0.28) 0.8px, transparent 1px);
+    background-size: 6px 2px;
+    background-repeat: repeat-x;
+  }
+
+  .dot-grid {
+    background-image: radial-gradient(circle, rgb(239 235 227 / 0.07) 1px, transparent 1.2px);
+    background-size: 22px 22px;
+  }
+
+  .check {
+    display: grid;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    place-items: center;
+    border: 1px solid rgb(239 235 227 / 0.25);
+    border-radius: 5px;
+    color: transparent;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
+  }
+  .check[data-on="true"] {
+    border-color: var(--color-saffron);
+    background: var(--color-saffron);
+    color: var(--color-ink);
+  }
+
+  .skeleton {
+    border-radius: 6px;
+    background: linear-gradient(90deg, rgb(239 235 227 / 0.04) 0%, rgb(239 235 227 / 0.09) 50%, rgb(239 235 227 / 0.04) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* Dot-matrix "printing" indicator for loading lines. */
+  .printing::after {
+    content: "";
+    display: inline-block;
+    width: 1.6em;
+    text-align: left;
+    animation: printing 1.2s steps(4) infinite;
+  }
+
+  .caret {
+    display: inline-block;
+    width: 0.55em;
+    height: 1em;
+    margin-left: 2px;
+    vertical-align: -0.12em;
+    background: var(--color-saffron);
+    animation: blink 1s steps(1) infinite;
+  }
+
+  /* Option cards (style picker): flat, numbered, saffron on hover. */
+  .option {
+    position: relative;
+    background: var(--color-ink);
+    padding: 1.5rem;
+    text-align: left;
+    transition: background-color 0.2s;
+  }
+  button.option:not(:disabled):hover,
+  button.option:focus-visible {
+    background: var(--color-ink-2);
+  }
+  button.option:not(:disabled):hover .option-num,
+  button.option:focus-visible .option-num {
+    color: var(--color-saffron);
+  }
+  button.option:disabled {
+    cursor: progress;
+  }
+
+  /* Cart build log: lines print in sequence, then get their OK. */
+  .log-line {
+    opacity: 0;
+    animation: log-in 0.3s ease forwards;
+    animation-delay: calc(var(--i) * 0.7s);
+  }
+  .log-ok {
+    opacity: 0;
+    animation: log-in 0.2s ease forwards;
+    animation-delay: calc(var(--i) * 0.7s + 0.6s);
+  }
+  .log-line:last-child .log-ok {
+    display: none;
+  }
+
+  /* Soft warm core behind the dot sphere; follows --energy. */
+  .orb::before {
+    content: "";
+    position: absolute;
+    inset: 26%;
+    border-radius: 9999px;
+    pointer-events: none;
+    background: radial-gradient(circle, rgb(255 122 26 / 0.3), transparent 70%);
+    filter: blur(30px);
+    opacity: calc(0.25 + var(--energy, 0.2) * 0.6);
+    transition: opacity 1.2s ease;
+  }
+  .orb[data-palette="success"]::before {
+    background: radial-gradient(circle, rgb(140 212 126 / 0.3), transparent 70%);
+  }
+  .orb-fallback {
+    width: 100%;
+    height: 100%;
+    transform: scale(0.7);
+    border-radius: 9999px;
+    background-image: radial-gradient(circle, var(--color-paper) 1.2px, transparent 1.6px);
+    background-size: 9px 9px;
+    -webkit-mask: radial-gradient(circle at 35% 30%, #000, rgb(0 0 0 / 0.15) 72%, transparent 72.5%);
+    mask: radial-gradient(circle at 35% 30%, #000, rgb(0 0 0 / 0.15) 72%, transparent 72.5%);
+  }
+
+  .sheet::backdrop {
+    background: rgb(5 5 4 / 0.7);
+    backdrop-filter: blur(4px);
+  }
+  .sheet[open] {
+    animation: rise 0.4s var(--ease-out-expo) both;
+  }
+
+  /* Deck: scroll-snapped slides, simple staggered reveal. */
+  .deck {
+    scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
+  }
+  @media (min-width: 768px) and (min-height: 640px) {
+    .deck {
+      scroll-snap-type: y mandatory;
+    }
+  }
+  [data-slide] .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 0.8s var(--ease-out-expo),
+      transform 0.9s var(--ease-out-expo);
+    transition-delay: calc(var(--d, 0) * 80ms);
+  }
+  [data-slide][data-seen="true"] .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes log-in {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes printing {
+  0% {
+    content: "";
+  }
+  25% {
+    content: ".";
+  }
+  50% {
+    content: "..";
+  }
+  75% {
+    content: "...";
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
