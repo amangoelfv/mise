@@ -1,6 +1,7 @@
 import type { CartItem, Diet, DishStyleId } from "./contract";
 
-export type Source = "gemini" | "sample";
+/** "sample": no Gemini configured. "fallback": Gemini failed on every model. Both serve the built-in menu (src/lib/feed.ts). */
+export type Source = "gemini" | "sample" | "fallback";
 
 export interface DishVariant {
   style: DishStyleId;
@@ -21,7 +22,7 @@ export interface VariantsOk {
   isVeg: boolean;
   variants: DishVariant[];
 }
-export type VariantsResult = VariantsOk | { ok: false; message: string };
+export type VariantsResult = VariantsOk | { ok: false; message: string; suggestions?: string[] };
 
 export interface IngredientsOk {
   ok: true;

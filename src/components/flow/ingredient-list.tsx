@@ -59,9 +59,9 @@ export function IngredientList({
             <span className="printing font-mono text-[13px]">Gemini is measuring everything out</span>
           )}
         </p>
-        {list?.source === "sample" && (
+        {list && list.source !== "gemini" && (
           <div className="mt-4">
-            <SampleBadge />
+            <SampleBadge source={list.source} />
           </div>
         )}
       </div>

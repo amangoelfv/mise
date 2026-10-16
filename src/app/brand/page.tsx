@@ -1,10 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { BRAND, LogoMark, Wordmark, markDots } from "@/components/brand";
 import { ArrowLeft } from "@/components/icons";
 import { Orb } from "@/components/orb";
 
-export const metadata = { title: "Brand", description: "Mise logo, colour, type and voice." };
+const DESCRIPTION = "The Mise brand: a halftone dot mark, warm ink and paper with one saffron accent, Archivo and a dot-matrix face, and a voice like a good shopping list.";
+
+export const metadata: Metadata = {
+  title: "Brand",
+  description: DESCRIPTION,
+  alternates: { canonical: "/brand" },
+  openGraph: { type: "website", siteName: "Mise", locale: "en_IN", url: "/brand", title: "Mise brand guidelines", description: DESCRIPTION },
+  twitter: { card: "summary_large_image", title: "Mise brand guidelines", description: DESCRIPTION },
+};
 
 const COLORS: { name: string; hex: string; use: string; dark?: boolean }[] = [
   { name: "Ink", hex: BRAND.ink, use: "Background. Warm black, never pure #000." },

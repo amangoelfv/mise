@@ -4,8 +4,9 @@ import { Flow } from "@/components/flow/flow";
 import { cartApiMode } from "@/lib/cart-api";
 import { zeptoState } from "@/lib/connectors";
 import { getConnections, getUser } from "@/lib/session";
+import { PRIVATE_ROBOTS } from "@/lib/site";
 
-export const metadata = { title: "What do you want to eat today?" };
+export const metadata = { title: "What do you want to eat today?", robots: PRIVATE_ROBOTS };
 
 async function SessionFlow({ searchParams }: { searchParams: PageProps<"/app">["searchParams"] }) {
   const { q } = await searchParams;

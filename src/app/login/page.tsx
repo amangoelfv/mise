@@ -4,8 +4,9 @@ import { Logo } from "@/components/brand";
 import { Orb } from "@/components/orb";
 import { SignIn } from "@/components/sign-in";
 import { demoLoginEnabled, googleClientId, safeNext } from "@/lib/config";
+import { PRIVATE_ROBOTS } from "@/lib/site";
 
-export const metadata = { title: "Sign in" };
+export const metadata = { title: "Sign in", robots: PRIVATE_ROBOTS };
 
 async function SignInWithNext({ searchParams }: { searchParams: PageProps<"/login">["searchParams"] }) {
   const { next } = await searchParams;

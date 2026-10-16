@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { ConnectDone } from "@/components/connect-done";
+import { PRIVATE_ROBOTS } from "@/lib/site";
 
-export const metadata = { title: "Zepto" };
+export const metadata = { title: "Zepto", robots: PRIVATE_ROBOTS };
 
 async function Result({ searchParams }: { searchParams: PageProps<"/connectors/zepto/done">["searchParams"] }) {
   const { status, message } = await searchParams;

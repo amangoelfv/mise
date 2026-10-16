@@ -1,4 +1,4 @@
-import { getIngredients } from "@/lib/gemini";
+import { GeminiUnavailableError, getIngredients } from "@/lib/gemini";
 import { DIETS, STYLES, fail, num, oneOf, readJson, requireUser, str, strList } from "@/lib/http";
 
 export async function POST(req: Request) {
@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       }),
     );
   } catch (error) {
+    if (error instanceof GeminiUnavailableError) return fail(error.message, 503);
     console.error("[dish/ingredients]", error);
     return fail("Gemini couldn't draft the list. Try again?", 502);
   }
