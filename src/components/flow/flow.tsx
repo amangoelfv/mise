@@ -26,6 +26,16 @@ const STAGES: { id: Stage; label: string }[] = [
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/**
+ * Each forward step pushes one history entry (same URL, step in history.state), so the browser's
+ * Back button / swipe walks back through the flow instead of leaving /app. Steps only ever advance
+ * by one, so a stage's index equals its distance from the "ask" entry.
+ */
+const ORDER: Record<Stage, number> = { ask: 0, styles: 1, ingredients: 2, cart: 3 };
+const isStage = (value: unknown): value is Stage => typeof value === "string" && value in ORDER;
+const pushStep = (step: Stage) => window.history.pushState({ ...window.history.state, miseStep: step }, "");
+const replaceStep = (step: Stage, url?: string) => window.history.replaceState({ ...window.history.state, miseStep: step }, "", url);
+
 export function Flow({
   firstName,
   initialQuery,
@@ -56,6 +66,8 @@ export function Flow({
   // Every new request bumps this; responses for older requests are dropped.
   const requestId = useRef(0);
   const buildAfterConnect = useRef(false);
+  // Set before a history jump back to "ask" that should also clear the dish ("Cook something else").
+  const resetOnPop = useRef(false);
 
   const items = useMemo(
     () =>
@@ -94,19 +106,62 @@ export function Flow({
   }
 
   const boot = useEffectEvent(() => {
-    window.history.replaceState(null, "", "/app");
-    void fetchVariants(initialQuery);
+    if (initialQuery) {
+      // Arrived with ?q=: make this entry "ask" so Back lands on the dish screen, then step forward.
+      replaceStep("ask", "/app");
+      pushStep("styles");
+      void fetchVariants(initialQuery);
+    } else {
+      replaceStep("ask");
+    }
   });
   const booted = useRef(false);
   useEffect(() => {
-    if (booted.current || !initialQuery) return;
+    if (booted.current) return;
     booted.current = true;
     boot();
-  }, [initialQuery]);
+  }, []);
+
+  function applyStage(target: Stage) {
+    requestId.current++;
+    if (resetOnPop.current) {
+      resetOnPop.current = false;
+      setQuery("");
+      setVariants(null);
+      setVariantsError(null);
+      setChoice(null);
+      setList(null);
+      setCart(null);
+      setStage("ask");
+      return;
+    }
+    if (target === "cart") {
+      if (cart) setStage("cart");
+      return;
+    }
+    setCart(null);
+    if (target === "ingredients") setStage(list && choice ? "ingredients" : variants ? "styles" : "ask");
+    else if (target === "styles") setStage(variants || variantsError ? "styles" : "ask");
+    else setStage("ask");
+  }
+
+  /** Browser Back/Forward: move to the step stored on that history entry (if we still have its data). */
+  const onPopState = useEffectEvent((event: PopStateEvent) => {
+    const step = (event.state as { miseStep?: unknown } | null)?.miseStep;
+    if (isStage(step)) applyStage(step);
+  });
+  useEffect(() => {
+    const listener = (event: PopStateEvent) => onPopState(event);
+    window.addEventListener("popstate", listener);
+    return () => window.removeEventListener("popstate", listener);
+  }, []);
 
   function askDish(dish: string) {
     const trimmed = dish.trim();
     if (trimmed.length < 2) return;
+    // From the dish screen this is a step forward; from styles (retry, menu suggestion) it replaces.
+    if (stage === "ask") pushStep("styles");
+    else replaceStep("styles");
     setQuery(trimmed);
     setStage("styles");
     setVariants(null);
@@ -120,6 +175,7 @@ export function Flow({
   async function chooseStyle(variant: DishVariant) {
     if (!variants) return;
     const prefs = getPrefs();
+    if (stage === "styles") pushStep("ingredients");
     setChoice(variant);
     setStage("ingredients");
     setList(null);
@@ -169,6 +225,7 @@ export function Flow({
       setConnectOpen(true);
       return;
     }
+    if (stage === "ingredients") pushStep("cart");
     setStage("cart");
     setCart({ phase: "building" });
     const id = ++requestId.current;
@@ -195,7 +252,7 @@ export function Flow({
       if (id !== requestId.current) return;
       if (e instanceof ApiError && e.code === "connect_zepto") {
         setZepto({ connected: false });
-        setStage("ingredients");
+        window.history.back(); // undo the cart step; popstate returns us to ingredients
         setCart(null);
         buildAfterConnect.current = true;
         setConnectOpen(true);
@@ -217,26 +274,16 @@ export function Flow({
     }
   }
 
+  /** In-app back controls go through history too, so the browser stack and the screen never disagree. */
   function goTo(target: Stage) {
-    requestId.current++;
-    if (target === "ask") {
-      setStage("ask");
-      setVariants(null);
-      setVariantsError(null);
-    } else if (target === "styles") {
-      if (!variants) return askDish(query);
-      setStage("styles");
-    } else if (target === "ingredients" && list) {
-      setStage("ingredients");
-    }
-    setCart(null);
+    const steps = ORDER[target] - ORDER[stage];
+    if (steps < 0) window.history.go(steps);
   }
 
   function startOver() {
-    goTo("ask");
-    setQuery("");
-    setChoice(null);
-    setList(null);
+    if (ORDER[stage] === 0) return;
+    resetOnPop.current = true;
+    window.history.go(-ORDER[stage]);
   }
 
   const orbSize =
