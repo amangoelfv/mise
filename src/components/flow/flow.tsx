@@ -1,0 +1,365 @@
+"use client";
+
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { ApiError, api, errorMessage, scaleQuantity } from "@/lib/client";
+import type { CartStatus } from "@/lib/contract";
+import { avoidList, getPrefs } from "@/lib/prefs";
+import type { CartBody, DishVariant, IngredientsOk, VariantsOk, VariantsResult, ZeptoState } from "@/lib/types";
+import { Dialog } from "../dialog";
+import { DishIdeas, DishInput } from "../dish-input";
+import { Orb } from "../orb";
+import { ZeptoConnect } from "../zepto-connect";
+import { CartView, type CartPhase } from "./cart-view";
+import { IngredientList } from "./ingredient-list";
+import { PayloadDialog, type PayloadState } from "./payload-dialog";
+import { StylePicker } from "./style-picker";
+
+type Stage = "ask" | "styles" | "ingredients" | "cart";
+const STAGES: { id: Stage; label: string }[] = [
+  { id: "ask", label: "Dish" },
+  { id: "styles", label: "Style" },
+  { id: "ingredients", label: "Ingredients" },
+  { id: "cart", label: "Cart" },
+];
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export function Flow({
+  firstName,
+  initialQuery,
+  zepto: initialZepto,
+  simulatedCart,
+}: {
+  firstName: string;
+  initialQuery: string;
+  zepto: ZeptoState;
+  simulatedCart: boolean;
+}) {
+  const [stage, setStage] = useState<Stage>(initialQuery ? "styles" : "ask");
+  const [query, setQuery] = useState(initialQuery);
+  const [variants, setVariants] = useState<VariantsOk | null>(null);
+  const [variantsError, setVariantsError] = useState<string | null>(null);
+  const [choice, setChoice] = useState<DishVariant | null>(null);
+  const [list, setList] = useState<IngredientsOk | null>(null);
+  const [listError, setListError] = useState<string | null>(null);
+  const [excluded, setExcluded] = useState<Set<string>>(() => new Set());
+  const [servings, setServings] = useState(2);
+  const [cart, setCart] = useState<CartPhase | null>(null);
+  const [zepto, setZepto] = useState(initialZepto);
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [payload, setPayload] = useState<PayloadState>({ open: false });
+
+  // Every new request bumps this; responses for older requests are dropped.
+  const requestId = useRef(0);
+  const buildAfterConnect = useRef(false);
+
+  const items = useMemo(
+    () =>
+      list
+        ? list.items.map((item) => ({
+            ...item,
+            quantity: scaleQuantity(item.quantity, item.unit, servings / list.servings),
+          }))
+        : [],
+    [list, servings],
+  );
+  const chosen = items.filter((item) => !excluded.has(item.id));
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [stage]);
+
+  const loadingVariants = stage === "styles" && !variants && !variantsError;
+  const loadingList = stage === "ingredients" && !list && !listError;
+  const building = stage === "cart" && cart?.phase === "building";
+  const thinking = loadingVariants || loadingList || building;
+
+  async function fetchVariants(dish: string) {
+    const id = ++requestId.current;
+    const prefs = getPrefs();
+    try {
+      const res = await api<VariantsResult>("/api/dish/variants", {
+        body: { query: dish, diet: prefs.diet, avoid: avoidList(prefs) },
+      });
+      if (id !== requestId.current) return;
+      if (res.ok) setVariants(res);
+      else setVariantsError(res.message);
+    } catch (e) {
+      if (id === requestId.current) setVariantsError(errorMessage(e));
+    }
+  }
+
+  const boot = useEffectEvent(() => {
+    window.history.replaceState(null, "", "/app");
+    void fetchVariants(initialQuery);
+  });
+  const booted = useRef(false);
+  useEffect(() => {
+    if (booted.current || !initialQuery) return;
+    booted.current = true;
+    boot();
+  }, [initialQuery]);
+
+  function askDish(dish: string) {
+    const trimmed = dish.trim();
+    if (trimmed.length < 2) return;
+    setQuery(trimmed);
+    setStage("styles");
+    setVariants(null);
+    setVariantsError(null);
+    setChoice(null);
+    setList(null);
+    setCart(null);
+    void fetchVariants(trimmed);
+  }
+
+  async function chooseStyle(variant: DishVariant) {
+    if (!variants) return;
+    const prefs = getPrefs();
+    setChoice(variant);
+    setStage("ingredients");
+    setList(null);
+    setListError(null);
+    setCart(null);
+    const id = ++requestId.current;
+    try {
+      const res = await api<IngredientsOk>("/api/dish/ingredients", {
+        body: {
+          dish: variants.dish,
+          cuisine: variants.cuisine,
+          style: variant.style,
+          variant: { title: variant.title, tagline: variant.tagline, highlights: variant.highlights },
+          servings: prefs.servings,
+          diet: prefs.diet,
+          avoid: avoidList(prefs),
+        },
+      });
+      if (id !== requestId.current) return;
+      setList(res);
+      setServings(res.servings);
+      setExcluded(new Set(prefs.skipStaples ? res.items.filter((i) => i.pantryStaple).map((i) => i.id) : []));
+    } catch (e) {
+      if (id === requestId.current) setListError(errorMessage(e));
+    }
+  }
+
+  function cartBody(dryRun = false): CartBody | null {
+    if (!variants || !choice) return null;
+    const prefs = getPrefs();
+    return {
+      dish: { query, name: variants.dish, cuisine: variants.cuisine, style: choice.style, variantTitle: choice.title },
+      servings,
+      items: chosen,
+      diet: prefs.diet,
+      avoid: avoidList(prefs),
+      pincode: prefs.pincode,
+      dryRun,
+    };
+  }
+
+  async function buildCart(connected = zepto.connected) {
+    const body = cartBody();
+    if (!body || !body.items.length) return;
+    if (!connected) {
+      buildAfterConnect.current = true;
+      setConnectOpen(true);
+      return;
+    }
+    setStage("cart");
+    setCart({ phase: "building" });
+    const id = ++requestId.current;
+    try {
+      let { status } = await api<{ status: CartStatus }>("/api/cart", { body });
+      const started = Date.now();
+      while (status.status === "processing" && Date.now() - started < 120_000) {
+        await sleep(1500);
+        if (id !== requestId.current) return;
+        ({ status } = await api<{ status: CartStatus }>(`/api/cart/${encodeURIComponent(status.cartId)}`));
+      }
+      if (id !== requestId.current) return;
+      if (status.status === "ready" || status.status === "partial") {
+        setCart({ phase: "ready", status });
+      } else {
+        setCart({
+          phase: "failed",
+          message:
+            status.message ||
+            (status.status === "processing" ? "Zepto is taking longer than usual." : "Zepto couldn't build this cart."),
+        });
+      }
+    } catch (e) {
+      if (id !== requestId.current) return;
+      if (e instanceof ApiError && e.code === "connect_zepto") {
+        setZepto({ connected: false });
+        setStage("ingredients");
+        setCart(null);
+        buildAfterConnect.current = true;
+        setConnectOpen(true);
+        return;
+      }
+      setCart({ phase: "failed", message: errorMessage(e) });
+    }
+  }
+
+  async function openPayload() {
+    const body = cartBody(true);
+    if (!body) return;
+    setPayload({ open: true });
+    try {
+      const { request } = await api<{ request: unknown }>("/api/cart", { body });
+      setPayload({ open: true, json: JSON.stringify(request, null, 2) });
+    } catch (e) {
+      setPayload({ open: true, error: errorMessage(e) });
+    }
+  }
+
+  function goTo(target: Stage) {
+    requestId.current++;
+    if (target === "ask") {
+      setStage("ask");
+      setVariants(null);
+      setVariantsError(null);
+    } else if (target === "styles") {
+      if (!variants) return askDish(query);
+      setStage("styles");
+    } else if (target === "ingredients" && list) {
+      setStage("ingredients");
+    }
+    setCart(null);
+  }
+
+  function startOver() {
+    goTo("ask");
+    setQuery("");
+    setChoice(null);
+    setList(null);
+  }
+
+  const orbSize =
+    stage === "ask"
+      ? "size-[200px] sm:size-[260px] mt-[4vh]"
+      : stage === "cart"
+        ? "size-[150px] sm:size-[180px] mt-6"
+        : thinking
+          ? "size-32 mt-4"
+          : "size-20 mt-4";
+
+  const reached = STAGES.findIndex((s) => s.id === stage);
+
+  return (
+    <main className="relative mx-auto flex w-full max-w-5xl flex-1 flex-col px-5 pb-40 sm:px-8">
+      {stage !== "ask" && (
+        <nav aria-label="Progress" className="animate-fade mx-auto mt-6 flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.14em]">
+          {STAGES.map((s, i) => {
+            const clickable = i < reached && !building && (s.id !== "ingredients" || !!list);
+            return (
+              <span key={s.id} className="flex items-center gap-1">
+                {i > 0 && <span className="w-4 border-t border-dotted border-paper/25 sm:w-8" />}
+                <button
+                  type="button"
+                  disabled={!clickable}
+                  onClick={() => goTo(s.id)}
+                  aria-current={i === reached ? "step" : undefined}
+                  className={`rounded-md px-2 py-1 transition ${i === reached ? "text-paper" : clickable ? "text-paper/45 hover:text-saffron" : "text-paper/20"}`}
+                >
+                  <span className={i === reached ? "text-saffron" : ""}>{String(i + 1).padStart(2, "0")}</span>{" "}
+                  <span className="max-sm:hidden">{s.label}</span>
+                </button>
+              </span>
+            );
+          })}
+        </nav>
+      )}
+
+      <div className={`mx-auto shrink-0 transition-all duration-700 ease-out-expo ${orbSize}`}>
+        <Orb energy={thinking ? 1 : stage === "ask" ? 0.22 : 0.4} palette={cart?.phase === "ready" ? "success" : "warm"} />
+      </div>
+
+      {stage === "ask" && (
+        <section className="mx-auto mt-8 flex w-full max-w-2xl flex-col">
+          <p className="label animate-rise text-center">Hi {firstName}</p>
+          <h1 className="display animate-rise mt-4 text-center text-[clamp(2.3rem,6vw,4rem)] [animation-delay:60ms]">
+            What do you want to eat today?
+          </h1>
+          <div className="animate-rise mt-12 w-full [animation-delay:120ms]">
+            <DishInput value={query} onChange={setQuery} onSubmit={askDish} autoFocus />
+          </div>
+          <div className="animate-rise mt-4 [animation-delay:180ms]">
+            <DishIdeas onPick={askDish} />
+          </div>
+        </section>
+      )}
+
+      {stage === "styles" && (
+        <StylePicker
+          query={query}
+          variants={variants}
+          error={variantsError}
+          onPick={chooseStyle}
+          onRetry={() => askDish(query)}
+          onEdit={() => goTo("ask")}
+        />
+      )}
+
+      {stage === "ingredients" && variants && choice && (
+        <IngredientList
+          dish={variants.dish}
+          variant={choice}
+          list={list}
+          error={listError}
+          items={items}
+          excluded={excluded}
+          servings={servings}
+          zepto={zepto}
+          onToggle={(id) =>
+            setExcluded((prev) => {
+              const next = new Set(prev);
+              if (next.has(id)) next.delete(id);
+              else next.add(id);
+              return next;
+            })
+          }
+          onServings={setServings}
+          onRetry={() => chooseStyle(choice)}
+          onBuild={() => buildCart()}
+          onShowPayload={openPayload}
+        />
+      )}
+
+      {stage === "cart" && cart && choice && (
+        <CartView
+          cart={cart}
+          variantTitle={choice.title}
+          itemCount={chosen.length}
+          simulated={simulatedCart}
+          onRetry={() => buildCart()}
+          onBack={() => goTo("ingredients")}
+          onStartOver={startOver}
+        />
+      )}
+
+      <Dialog
+        open={connectOpen}
+        onClose={() => {
+          buildAfterConnect.current = false;
+          setConnectOpen(false);
+        }}
+        title="Connect your store"
+      >
+        <ZeptoConnect
+          allowSimulated={simulatedCart}
+          onConnected={(state) => {
+            setZepto(state);
+            setConnectOpen(false);
+            if (buildAfterConnect.current) {
+              buildAfterConnect.current = false;
+              void buildCart(true);
+            }
+          }}
+        />
+      </Dialog>
+
+      <PayloadDialog state={payload} onClose={() => setPayload({ open: false })} />
+    </main>
+  );
+}
