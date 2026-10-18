@@ -94,6 +94,8 @@ export interface CartLine {
   priceInr: number;
   mrpInr?: number;
   imageUrl?: string;
+  /** Why this product was chosen (brand/rating/match) — shown to the user for transparency. */
+  reason?: string;
 }
 
 /** Returned by POST /v1/carts and GET /v1/carts/{cartId}. */
@@ -108,7 +110,15 @@ export interface CartStatus {
   lines: CartLine[];
   unavailable: { ingredientId: string; name: string; reason?: string }[];
   /** Ingredients skipped because the user probably already has them (from order history). */
-  skipped?: { ingredientId: string; name: string; reason: string }[];
+  skipped?: {
+    ingredientId: string;
+    name: string;
+    reason: string;
+    /** Days since the user last ordered it on Zepto (from the order's UUIDv7 timestamp). */
+    boughtDaysAgo?: number;
+    /** Typical shelf life in days — so it's still usable now. */
+    shelfLifeDays?: number;
+  }[];
   totals?: { itemsInr: number; deliveryInr?: number; totalInr: number; currency: "INR" };
   etaMinutes?: number;
   /** Shown to the user when status is "failed" (or as a note on "partial"). */

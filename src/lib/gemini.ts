@@ -1,5 +1,5 @@
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
-import type { CartItem, Diet } from "./contract";
+import type { CartItem, Diet, DishStyleId } from "./contract";
 import { CATEGORIES, STYLES, UNITS, num, oneOf, str, strList } from "./http";
 import { feedIngredients, feedVariants, findDish } from "./feed";
 import { POPULAR_DISHES } from "./feed-names";
@@ -289,3 +289,81 @@ export async function getIngredients(input: IngredientsInput): Promise<Ingredien
     items,
   };
 }
+
+// ── Product selection ────────────────────────────────────────────────────────
+// Picks the best real Zepto product per ingredient, matched to the dish style and
+// diet. One batched call; minimal payload. Pure fallback: if Gemini isn't set or
+// fails, this returns an empty map and the deterministic scorer decides.
+
+/** One candidate product, trimmed to only what the model needs to judge. */
+export interface AiSelectOption {
+  pid: string;
+  name: string;
+  pack: string;
+  price: number; // INR
+  rating?: number | null;
+}
+export interface AiSelectItem {
+  id: string;
+  ingredient: string;
+  options: AiSelectOption[];
+}
+export interface AiSelectPick {
+  pid: string;
+  reason: string;
+}
+export type AiProductSelector = (
+  items: AiSelectItem[],
+  context: { style: DishStyleId; diet: Diet },
+) => Promise<Map<string, AiSelectPick>>;
+
+const selectSchema = {
+  type: "object",
+  properties: {
+    picks: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          id: { type: "string", description: "The ingredient id from the input." },
+          pid: { type: "string", description: "The chosen option's pid (must be one of the given options)." },
+          reason: { type: "string", description: "<= 8 words, why this product fits the style/diet." },
+        },
+        required: ["id", "pid", "reason"],
+      },
+    },
+  },
+  required: ["picks"],
+};
+
+/** Gemini-backed {@link AiProductSelector}. Reuses the shared client + model fallback. */
+export const selectProducts: AiProductSelector = async (items, context) => {
+  const out = new Map<string, AiSelectPick>();
+  if (!ai || items.length === 0) return out;
+
+  const style = styleById(context.style);
+  const prompt = [
+    `Pick the single best Zepto product for each ingredient for a "${style.label}" take on the dish.`,
+    `What "${style.label}" means: ${style.guidance}`,
+    `Diet: ${DIET_RULES[context.diet]}`,
+    "Favour products that truly match the style (healthy → low-fat / whole-grain / no additives; high-protein → more protein per pack; restaurant → rich, authentic), a sensible pack size, a good rating and fair price.",
+    "Choose strictly from each ingredient's given options, by its pid. Keep each reason to at most 8 words.",
+    "Data (prices in INR):",
+    JSON.stringify(items),
+  ].join("\n");
+
+  try {
+    const raw = record(await generateJson([FAST_MODEL, MODEL], prompt, selectSchema, 0.3));
+    const picks = Array.isArray(raw.picks) ? raw.picks : [];
+    for (const p of picks) {
+      const r = record(p);
+      const id = str(r.id, "", 24);
+      const pid = str(r.pid, "", 64);
+      if (id && pid) out.set(id, { pid, reason: str(r.reason, "best fit for this dish", 60) });
+    }
+    console.info(`[gemini] product selection: chose ${out.size}/${items.length} items`);
+  } catch (error) {
+    console.error("[gemini] product selection failed; using algo picks:", error instanceof Error ? error.message : error);
+  }
+  return out;
+};

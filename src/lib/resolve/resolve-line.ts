@@ -69,21 +69,35 @@ export function resolveLine(
   products: readonly ZeptoProduct[],
   catalog: IngredientCatalog,
   options: SelectOptions = {},
+  /** AI's choice for this ingredient (by productVariantId). Used when it matches an in-list product, else algo decides. */
+  override?: { pid: string; reason: string },
 ): ResolveOutcome {
   const entry = catalog.resolve(item.name) ?? catalog.resolve(item.searchQuery);
-  const best = selectBestProduct(products, item.searchQuery || item.name, entry, options);
 
-  if (!best) {
-    return {
-      kind: "unavailable",
-      item: {
-        ingredientId: item.id,
-        name: item.name,
-        reason: products.length === 0 ? "not_found" : "no_match",
-      },
-    };
+  let best: ZeptoProduct | undefined;
+  let reason: string | undefined;
+  if (override) {
+    const picked = products.find((p) => p.productVariantId === override.pid && p.price > 0);
+    if (picked) {
+      best = picked;
+      reason = `AI · ${override.reason}`;
+    }
   }
-
+  if (!best) {
+    const selection = selectBestProduct(products, item.searchQuery || item.name, entry, options);
+    if (!selection) {
+      return {
+        kind: "unavailable",
+        item: {
+          ingredientId: item.id,
+          name: item.name,
+          reason: products.length === 0 ? "not_found" : "no_match",
+        },
+      };
+    }
+    best = selection.product;
+    reason = selection.reason;
+  }
   const pack = parsePackSize(best.packSize);
   const quantity = computePackCount(item, pack.base, pack.kind, entry?.conversions, entry?.gramsPerPiece);
   const unitInr = best.price / 100;
@@ -99,6 +113,7 @@ export function resolveLine(
       quantity,
       priceInr: round2(unitInr * quantity), // line total (contract: price × quantity)
       mrpInr: round2(unitMrpInr * quantity),
+      ...(reason ? { reason } : {}), // why this product was chosen — surfaced in the UI
       ...(best.imageUrl ? { imageUrl: best.imageUrl } : {}),
     },
   };

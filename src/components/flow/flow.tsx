@@ -5,15 +5,16 @@ import type { CatalogDish } from "@/lib/catalog";
 import { ApiError, api, errorMessage, scaleQuantity } from "@/lib/client";
 import type { CartStatus } from "@/lib/contract";
 import { avoidList, getPrefs } from "@/lib/prefs";
+import { styleById } from "@/lib/styles";
 import type { CartBody, DishVariant, IngredientsOk, VariantsOk, VariantsResult, ZeptoState } from "@/lib/types";
 import { Dialog } from "../dialog";
 import { DishInput } from "../dish-input";
 import { DishMenu } from "../dish-menu";
 import { Orb } from "../orb";
 import { ZeptoConnect } from "../zepto-connect";
-import { CartView, type CartPhase } from "./cart-view";
+import { CartView, EMPTY_EDITS, effectiveCart, type CartEdits, type CartPhase } from "./cart-view";
 import { IngredientList } from "./ingredient-list";
-import { PayloadDialog, type PayloadState } from "./payload-dialog";
+import { OrderConfirm, type DeliveryDetails } from "./order-confirm";
 import { StylePicker } from "./style-picker";
 
 type Stage = "ask" | "styles" | "ingredients" | "cart";
@@ -51,7 +52,10 @@ export function Flow({
   const [cart, setCart] = useState<CartPhase | null>(null);
   const [zepto, setZepto] = useState(initialZepto);
   const [connectOpen, setConnectOpen] = useState(false);
-  const [payload, setPayload] = useState<PayloadState>({ open: false });
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [placing, setPlacing] = useState(false);
+  const [placeError, setPlaceError] = useState<string | null>(null);
+  const [cartEdits, setCartEdits] = useState<CartEdits>(EMPTY_EDITS);
 
   // Every new request bumps this; responses for older requests are dropped.
   const requestId = useRef(0);
@@ -171,6 +175,7 @@ export function Flow({
     }
     setStage("cart");
     setCart({ phase: "building" });
+    setCartEdits(EMPTY_EDITS); // fresh cart, no edits yet
     const id = ++requestId.current;
     try {
       let { status } = await api<{ status: CartStatus }>("/api/cart", { body });
@@ -205,15 +210,52 @@ export function Flow({
     }
   }
 
-  async function openPayload() {
-    const body = cartBody(true);
-    if (!body) return;
-    setPayload({ open: true });
+  function removeLine(key: string) {
+    setCartEdits((prev) => ({ ...prev, removed: new Set(prev.removed).add(key) }));
+  }
+  function changeQty(key: string, delta: number) {
+    if (!cart || (cart.phase !== "ready" && cart.phase !== "placing")) return;
+    const line = cart.status.lines.find((l) => `${l.ingredientId}-${l.productId}` === key);
+    if (!line) return;
+    const current = cartEdits.qty[key] ?? line.quantity;
+    const next = Math.max(1, Math.min(99, current + delta));
+    setCartEdits((prev) => ({ ...prev, qty: { ...prev.qty, [key]: next } }));
+  }
+
+  async function placeOrder(details: DeliveryDetails) {
+    if (!cart || cart.phase !== "ready") return;
+    const status = cart.status;
+    const eff = effectiveCart(status, cartEdits); // honour the user's in-cart edits
+    setPlacing(true);
+    setPlaceError(null);
     try {
-      const { request } = await api<{ request: unknown }>("/api/cart", { body });
-      setPayload({ open: true, json: JSON.stringify(request, null, 2) });
+      const { order } = await api<{ order: { id: string; status: string; etaMinutes?: number } }>("/api/orders", {
+        body: {
+          cartId: status.cartId,
+          dish: {
+            name: variants?.dish ?? query,
+            variantTitle: choice?.title ?? "",
+            styleLabel: choice ? styleById(choice.style).label : "",
+          },
+          lines: eff.lines.map((l) => ({
+            name: l.name,
+            packSize: l.packSize,
+            quantity: l.quantity,
+            priceInr: l.priceInr,
+            imageUrl: l.imageUrl,
+          })),
+          totals: { itemsInr: eff.itemsInr, deliveryInr: eff.deliveryInr, totalInr: eff.totalInr },
+          etaMinutes: status.etaMinutes,
+          contact: { name: details.name, phone: details.phone },
+          address: { line: details.address, landmark: details.landmark, pincode: getPrefs().pincode },
+        },
+      });
+      setConfirmOpen(false);
+      setCart({ phase: "placed", status, order, address: details.address });
     } catch (e) {
-      setPayload({ open: true, error: errorMessage(e) });
+      setPlaceError(errorMessage(e));
+    } finally {
+      setPlacing(false);
     }
   }
 
@@ -331,7 +373,6 @@ export function Flow({
           onServings={setServings}
           onRetry={() => chooseStyle(choice)}
           onBuild={() => buildCart()}
-          onShowPayload={openPayload}
         />
       )}
 
@@ -339,8 +380,15 @@ export function Flow({
         <CartView
           cart={cart}
           variantTitle={choice.title}
+          styleLabel={styleById(choice.style).label}
           itemCount={chosen.length}
-          simulated={simulatedCart}
+          edits={cartEdits}
+          onRemove={removeLine}
+          onQty={changeQty}
+          onPlaceOrder={() => {
+            setPlaceError(null);
+            setConfirmOpen(true);
+          }}
           onRetry={() => buildCart()}
           onBack={() => goTo("ingredients")}
           onStartOver={startOver}
@@ -368,7 +416,21 @@ export function Flow({
         />
       </Dialog>
 
-      <PayloadDialog state={payload} onClose={() => setPayload({ open: false })} />
+      {cart?.phase === "ready" &&
+        (() => {
+          const eff = effectiveCart(cart.status, cartEdits);
+          return (
+            <OrderConfirm
+              open={confirmOpen}
+              summary={{ packs: eff.packs, products: eff.lines.length, totalInr: eff.totalInr, etaMinutes: cart.status.etaMinutes }}
+              firstName={firstName}
+              busy={placing}
+              error={placeError}
+              onClose={() => !placing && setConfirmOpen(false)}
+              onConfirm={placeOrder}
+            />
+          );
+        })()}
     </main>
   );
 }

@@ -19,7 +19,9 @@ export async function GET() {
   return Response.json({
     ZEPTO_ACCESS_TOKEN: zepto.accessToken,
     ZEPTO_REFRESH_TOKEN: zepto.refreshToken ?? null,
+    // The client id the refresh token was issued to — REQUIRED for auto-refresh to work.
+    ZEPTO_CLIENT_ID: zepto.clientId,
     ZEPTO_ACCESS_TOKEN_EXPIRES_AT: zepto.expiresAt,
-    note: "Copy into prod env (Cloud Run). Keep secret. Do NOT set ZEPTO_TOKEN_EXPORT in prod.",
+    note: "Copy all three (ACCESS, REFRESH, CLIENT_ID) into prod env (Cloud Run). Keep secret. Do NOT set ZEPTO_TOKEN_EXPORT in prod.",
   });
 }

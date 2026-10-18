@@ -1,4 +1,5 @@
 import { type CartRequest, type CartStatus } from "./contract";
+import { geminiConfigured, selectProducts } from "./gemini";
 import { defaultCatalog } from "./resolve/default-catalog";
 import { resolveCart } from "./resolve/resolve-cart";
 import { createZeptoSource } from "./resolve/zepto-mcp";
@@ -53,7 +54,13 @@ export async function createCart(request: CartRequest): Promise<CartStatus> {
   // In-process engine. createZeptoSource picks live MCP (connected) or golden cache,
   // and wraps live with a golden-cache fallback so it can never hard-fail.
   const source = createZeptoSource(request.connector);
-  return resolveCart(request, source, defaultCatalog());
+  // Gemini picks style/diet-appropriate products when configured; else deterministic scorer.
+  const status = await resolveCart(request, source, defaultCatalog(), new Date(), geminiConfigured ? selectProducts : undefined);
+  console.info(
+    `[cart] resolved "${request.dish.name}" via ${status.dataSource}: ${status.lines.length} lines, ` +
+      `${status.skipped?.length ?? 0} already-have, ${status.unavailable.length} unavailable (status=${status.status})`,
+  );
+  return status;
 }
 
 export async function getCart(cartId: string): Promise<CartStatus> {
