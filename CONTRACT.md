@@ -50,8 +50,19 @@ Suggested approach for each item: search the catalog with `searchQuery`, pick th
 | `connector` | see above | |
 | `delivery.pincode` | string? | 6 digits, optional. |
 | `dish` | object | `query` (what they typed), `name`, `cuisine?`, `style` (`restaurant` / `basic` / `healthy` / `protein`), `styleLabel`, `variantTitle`, `servings`. |
-| `preferences` | `{ diet, avoid[] }` | `diet`: `any` / `vegetarian` / `eggetarian` / `vegan` / `jain`. Respect these when substituting. |
+| `preferences` | `{ diet, avoid[], budget? }` | `diet`: `any` / `vegetarian` / `eggetarian` / `vegan` / `jain`. Respect these when substituting. `budget` is optional — see below. |
 | `items` | `CartItem[]` | Only what the user kept ticked. 1 to 40 items. |
+
+**`preferences.budget`** picks between products that both fit an ingredient:
+
+| Value | What to do |
+| --- | --- |
+| `best_rated` | Rank candidates by rating, then price. |
+| `best_price` | Rank by lowest price for an acceptable pack size. |
+
+It is optional, and **absent means `best_rated`** — so a service written against the original
+`{ diet, avoid[] }` keeps working untouched. It was added additively and `version` stays `"1.0"`,
+per the rule in the table above that the version bumps only on breaking changes.
 
 ### `CartItem`
 
@@ -117,7 +128,7 @@ Request (trimmed to two items):
     "variantTitle": "Parmesan Alfredo Penne",
     "servings": 2
   },
-  "preferences": { "diet": "vegetarian", "avoid": ["peanuts"] },
+  "preferences": { "diet": "vegetarian", "avoid": ["peanuts"], "budget": "best_price" },
   "items": [
     {
       "id": "ing_01",
