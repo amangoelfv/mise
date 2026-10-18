@@ -107,9 +107,13 @@ export interface CartStatus {
   cartUrl?: string;
   lines: CartLine[];
   unavailable: { ingredientId: string; name: string; reason?: string }[];
+  /** Ingredients skipped because the user probably already has them (from order history). */
+  skipped?: { ingredientId: string; name: string; reason: string }[];
   totals?: { itemsInr: number; deliveryInr?: number; totalInr: number; currency: "INR" };
   etaMinutes?: number;
   /** Shown to the user when status is "failed" (or as a note on "partial"). */
   message?: string;
+  /** Where the product data came from: "live" | "cached" | "mock". */
+  dataSource?: string;
   updatedAt: string;
 }

@@ -1,19 +1,19 @@
-import {
-  CONTRACT_VERSION,
-  type CartItem,
-  type CartLine,
-  type CartRequest,
-  type CartStatus,
-} from "./contract";
+import { type CartRequest, type CartStatus } from "./contract";
+import { defaultCatalog } from "./resolve/default-catalog";
+import { resolveCart } from "./resolve/resolve-cart";
+import { createZeptoSource } from "./resolve/zepto-mcp";
 
 /**
- * Adapter for the cart curation service (see CONTRACT.md).
- * With CART_API_URL unset, everything is simulated locally so the app is demoable end to end.
+ * Cart curation. Two modes:
+ * - CART_API_URL set → delegate to an external cart service (the original contract).
+ * - otherwise → resolve in-process with our engine: live Zepto MCP when the user
+ *   is connected (with golden-cache fallback), else the bundled golden cache.
+ *   Either way the cart is REAL products + prices, never a fabricated mock.
  */
 
 const BASE_URL = process.env.CART_API_URL?.replace(/\/+$/, "") ?? "";
 const API_KEY = process.env.CART_API_KEY ?? "";
-export const cartApiMode: "live" | "mock" = BASE_URL ? "live" : "mock";
+export const cartApiMode: "live" | "local" = BASE_URL ? "live" : "local";
 
 export class CartApiError extends Error {
   constructor(
@@ -48,70 +48,16 @@ async function call<T>(path: string, init: { method: "GET" | "POST" | "DELETE"; 
   return data;
 }
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const randomId = (prefix: string) => `${prefix}_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
-
 export async function createCart(request: CartRequest): Promise<CartStatus> {
   if (cartApiMode === "live") return call<CartStatus>("/v1/carts", { method: "POST", body: request });
-  await sleep(2600);
-  return mockCart(request);
+  // In-process engine. createZeptoSource picks live MCP (connected) or golden cache,
+  // and wraps live with a golden-cache fallback so it can never hard-fail.
+  const source = createZeptoSource(request.connector);
+  return resolveCart(request, source, defaultCatalog());
 }
 
 export async function getCart(cartId: string): Promise<CartStatus> {
   if (cartApiMode === "live") return call<CartStatus>(`/v1/carts/${encodeURIComponent(cartId)}`, { method: "GET" });
-  // The mock resolves synchronously in createCart, so there is never anything to poll.
+  // The in-process engine resolves synchronously in createCart; nothing to poll.
   throw new CartApiError("Cart not found.", 404);
-}
-
-const PACKS: Partial<Record<CartItem["unit"], number[]>> = {
-  g: [100, 200, 250, 500, 1000],
-  kg: [1, 2, 5],
-  ml: [200, 250, 500, 1000],
-  l: [1, 2, 5],
-};
-
-function mockPack(item: CartItem): { packSize: string; quantity: number } {
-  const sizes = PACKS[item.unit];
-  if (sizes) {
-    const fit = sizes.find((s) => s >= item.quantity);
-    if (fit) return { packSize: `${fit} ${item.unit}`, quantity: 1 };
-    const largest = sizes[sizes.length - 1];
-    return { packSize: `${largest} ${item.unit}`, quantity: Math.ceil(item.quantity / largest) };
-  }
-  if (item.unit === "tsp" || item.unit === "tbsp") return { packSize: item.category === "spices" ? "50 g" : "250 ml", quantity: 1 };
-  if (item.unit === "bunch") return { packSize: "1 bunch", quantity: Math.max(1, Math.ceil(item.quantity)) };
-  if (item.unit === "pack") return { packSize: "1 pack", quantity: Math.max(1, Math.ceil(item.quantity)) };
-  return { packSize: `${Math.max(1, Math.ceil(item.quantity))} pc`, quantity: 1 };
-}
-
-function mockCart(request: CartRequest): CartStatus {
-  const lines: CartLine[] = request.items.map((item, index) => {
-    const { packSize, quantity } = mockPack(item);
-    const unitPrice = item.estimatedPriceInr || 49;
-    return {
-      ingredientId: item.id,
-      productId: `zp_${String(index + 1).padStart(4, "0")}`,
-      name: item.name,
-      packSize,
-      quantity,
-      priceInr: unitPrice * quantity,
-      mrpInr: Math.round(unitPrice * quantity * 1.12),
-    };
-  });
-  const itemsInr = lines.reduce((sum, line) => sum + line.priceInr, 0);
-  const deliveryInr = itemsInr >= 199 ? 0 : 30;
-  return {
-    version: CONTRACT_VERSION,
-    cartId: randomId("mock_cart"),
-    requestId: request.requestId,
-    status: "ready",
-    provider: "zepto",
-    cartUrl: "https://www.zeptonow.com/",
-    lines,
-    unavailable: [],
-    totals: { itemsInr, deliveryInr, totalInr: itemsInr + deliveryInr, currency: "INR" },
-    etaMinutes: 10,
-    message: "Simulated cart: set CART_API_URL to curate a real one.",
-    updatedAt: new Date().toISOString(),
-  };
 }

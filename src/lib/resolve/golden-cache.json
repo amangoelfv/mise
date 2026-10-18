@@ -1,0 +1,248 @@
+{
+  "search": {
+    "paneer": [
+      {
+        "productVariantId": "5e98a85b-2ced-4cac-873c-40f2290bd7a6",
+        "storeProductId": "344f6835-c09e-5b8b-8578-6e828008fb6d",
+        "name": "Mother Dairy Fresh Paneer",
+        "price": 10000,
+        "mrp": 10000,
+        "packSize": "1 pack (200 g)",
+        "availableQuantity": 43
+      },
+      {
+        "productVariantId": "861549d8-effd-49de-a2d3-d2ffd3c7333d",
+        "storeProductId": "40d2713e-3be5-513c-af5f-91ee18a5d392",
+        "name": "Milky Mist Paneer",
+        "price": 9700,
+        "mrp": 14000,
+        "packSize": "1 pack (200 g)",
+        "availableQuantity": 8,
+        "brand": "Milky Mist",
+        "averageRating": 4.6,
+        "totalRatings": 133080
+      },
+      {
+        "productVariantId": "f93b8303-46ad-43c3-8c9e-7076728d84a4",
+        "storeProductId": "028d0b6c-e6e9-5b4e-8c9c-ece6d2195555",
+        "name": "Mother Dairy Paneer",
+        "price": 18400,
+        "mrp": 19000,
+        "packSize": "1 pack (400 g)",
+        "availableQuantity": 3
+      }
+    ],
+    "butter": [
+      {
+        "productVariantId": "18fa8072-a91b-4cb7-ab28-c9f7a0d1404f",
+        "storeProductId": "7ff4af03-4f12-5f51-aee6-5ecbcce17146",
+        "name": "Milky Mist Table Butter",
+        "price": 6900,
+        "mrp": 8500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 20,
+        "brand": "Milky Mist",
+        "averageRating": 4.6,
+        "totalRatings": 3366
+      },
+      {
+        "productVariantId": "e600868b-693e-4f8b-ae63-23aade3cb112",
+        "storeProductId": "071d56a5-3fac-5205-ac03-ef924300b1b5",
+        "name": "Delicious Fat Spread - Cholesterol Free",
+        "price": 2500,
+        "mrp": 2500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 14
+      },
+      {
+        "productVariantId": "5fe7ad1b-0036-4356-9d18-cda79c1c6f88",
+        "storeProductId": "6fb9b8e9-5da7-55a1-b74e-6f1ed2c75d2d",
+        "name": "Milky Mist Butter Chiplet",
+        "price": 8500,
+        "mrp": 9000,
+        "packSize": "1 pack (10 x 10 g)",
+        "availableQuantity": 1
+      },
+      {
+        "productVariantId": "41cdf066-ac12-4390-a3c7-db20d1a30c9a",
+        "storeProductId": "1380f628-4075-53e7-b322-967203a85ccd",
+        "name": "Mother Dairy Pasteurized Butter",
+        "price": 30500,
+        "mrp": 31000,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 4
+      }
+    ],
+    "tomato": [
+      {
+        "productVariantId": "96ceffc5-96b0-418e-ad13-143b242becd8",
+        "storeProductId": "680a1d94-a955-5d72-8a57-b24f5140ca97",
+        "name": "Tomato Local",
+        "price": 1700,
+        "mrp": 4100,
+        "packSize": "200 - 300 g",
+        "availableQuantity": 20
+      },
+      {
+        "productVariantId": "1a6a6a31-16c5-4cb6-9c7b-2d8a6642e074",
+        "storeProductId": "e5947705-728d-59c5-9d9d-c85cc0a954e5",
+        "name": "Tomato Local",
+        "price": 2800,
+        "mrp": 8000,
+        "packSize": "500 g",
+        "availableQuantity": 19,
+        "brand": "Unbranded",
+        "averageRating": null,
+        "totalRatings": null
+      },
+      {
+        "productVariantId": "5c5e2f50-e1a9-4df1-a858-68354a231cc3",
+        "storeProductId": "39a35686-4e83-5425-b3bf-66ad62d42a33",
+        "name": "Desi Farms Low Fat Paneer",
+        "price": 9200,
+        "mrp": 9600,
+        "packSize": "1 pack (200 g)",
+        "availableQuantity": 2
+      }
+    ],
+    "cashews": [
+      {
+        "productVariantId": "36b05f1b-af2c-463e-9ead-af8655363efd",
+        "storeProductId": "020de208-4fe4-5111-87e0-ec1fea60040b",
+        "name": "Nutraj Cashew Nuts | Kaju",
+        "price": 24900,
+        "mrp": 39900,
+        "packSize": "1 pack (200 g)",
+        "availableQuantity": 9
+      },
+      {
+        "productVariantId": "7ebd9b0a-39b5-4e3b-a619-ba21b7307d1f",
+        "storeProductId": "0704a8fe-379b-5edd-89e2-f0985d9b089c",
+        "name": "MOM - Roasted & Salted Cashews | Dry Roasted | No Preservative",
+        "price": 8300,
+        "mrp": 9900,
+        "packSize": "1 pack (48 g)",
+        "availableQuantity": 5
+      },
+      {
+        "productVariantId": "00b4cef4-142c-46b1-824f-3da4488248fb",
+        "storeProductId": "7e97429b-092d-51ee-864c-564e011cda74",
+        "name": "Khetika Premium Cashews | Kaju Whole | Unpolished",
+        "price": 15000,
+        "mrp": 19900,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 4,
+        "brand": "Khetika",
+        "averageRating": 4.8,
+        "totalRatings": 1516
+      }
+    ],
+    "onion": [
+      {
+        "productVariantId": "b503d0e6-c17d-46e8-965f-63cd13f39752",
+        "storeProductId": "ac2be373-b3d6-590b-92bd-c307cfed6e21",
+        "name": "Onion",
+        "price": 5800,
+        "mrp": 12500,
+        "packSize": "900 g - 1 kg",
+        "availableQuantity": 20
+      },
+      {
+        "productVariantId": "5bc163e4-099a-4fa7-b6d1-db808c6a9da3",
+        "storeProductId": "96fcdd7e-2b9d-5c52-a77c-bbd520f240dd",
+        "name": "Onion Sliced",
+        "price": 3200,
+        "mrp": 6300,
+        "packSize": "200 g",
+        "availableQuantity": 3
+      },
+      {
+        "productVariantId": "81ac330b-546a-45d6-97b1-f5dfc06739db",
+        "storeProductId": "1c5a3fa6-3d8c-51a3-a399-0f5e022dad43",
+        "name": "Potato",
+        "price": 2200,
+        "mrp": 5800,
+        "packSize": "900 g - 1 kg",
+        "availableQuantity": 20
+      }
+    ],
+    "fresh cream": [
+      {
+        "productVariantId": "51d55eac-ca29-4532-9b32-9b7d317f346a",
+        "storeProductId": "655f516b-a7ea-5d58-af39-e0dd2cf70b55",
+        "name": "Amul Gold Full Cream Fresh Milk | Pouch",
+        "price": 3600,
+        "mrp": 3600,
+        "packSize": "1 pack (500 ml)",
+        "availableQuantity": 10
+      },
+      {
+        "productVariantId": "9d2ff356-0909-4bda-a3a9-06210d9e17fa",
+        "storeProductId": "b8c3ae76-dae5-518c-a95e-6c653d4eef2d",
+        "name": "Mother Dairy Cream",
+        "price": 6100,
+        "mrp": 6500,
+        "packSize": "1 pc (200 g)",
+        "availableQuantity": 17
+      },
+      {
+        "productVariantId": "5d93efe8-2046-450d-87ca-ce891fbf2a5b",
+        "storeProductId": "2b2f1e6b-de38-4438-862d-6e6d9ac641a0",
+        "name": "Amul Fresh Cream",
+        "price": 7500,
+        "mrp": 7500,
+        "packSize": "1 pc (250 ml)",
+        "availableQuantity": 9,
+        "brand": "Amul",
+        "averageRating": 4.7,
+        "totalRatings": 88551
+      },
+      {
+        "productVariantId": "75e52b8a-1811-41e3-8a15-8c408f20b71d",
+        "storeProductId": "258c4208-fd31-52c0-a70c-decc053aca14",
+        "name": "Mother Dairy Full Cream Fresh Milk | Pouch",
+        "price": 3600,
+        "mrp": 3600,
+        "packSize": "1 pack (500 ml)",
+        "availableQuantity": 10
+      }
+    ]
+  },
+  "orders": [
+    {
+      "id": "01a148e1-bf67-7db2-a1b2-bb27e77cc7b8",
+      "status": "DELIVERED",
+      "items": [
+        "Amul A2 Buffalo Fresh Milk | Pouch",
+        "Onion",
+        "Potato"
+      ]
+    },
+    {
+      "id": "01a14476-4bfa-7cfd-bd62-6466bdbdc3dc",
+      "status": "DELIVERED",
+      "items": [
+        "Amul A2 Buffalo Fresh Milk | Pouch",
+        "Ginger (New)",
+        "Parle Marie Biscuit"
+      ]
+    },
+    {
+      "id": "01a12f05-ab0e-7cd9-bbd4-1da75dce1122",
+      "status": "DELIVERED",
+      "items": [
+        "Kwality Wall's Oreo Ice Cream Sandwich",
+        "Safal Frozen Sweet Corn",
+        "Dabur Honitus Hot Sip Ayurvedic Kaadha"
+      ]
+    },
+    {
+      "id": "01a12bcc-960f-769f-b130-d48b83b1d5f9",
+      "status": "DELIVERED",
+      "items": [
+        "Let's Try Rock Salt Potato Wafers",
+        "Cadbury Nutties Chocolate Pack"
+      ]
+    }
+  ]
+}
