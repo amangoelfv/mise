@@ -146,7 +146,7 @@ export function DishInput({
                   </span>
                   <span className={`text-[15px] ${i === active ? "text-saffron" : "text-paper"}`}>{option.label}</span>
                   <span className="truncate text-[12.5px] text-paper/40">{option.dish.cuisine}</span>
-                  <span className="ml-auto shrink-0 font-mono text-[11.5px] text-paper/35">from {option.dish.minutes} min</span>
+                  <span className="ml-auto shrink-0 font-mono text-[12.5px] text-paper/35">from {option.dish.minutes} min</span>
                 </>
               ) : (
                 <span className="font-mono text-[12.5px] text-paper/55">

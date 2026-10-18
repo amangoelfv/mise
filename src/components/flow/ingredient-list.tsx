@@ -5,6 +5,7 @@ import type { CartItem } from "@/lib/contract";
 import { styleById } from "@/lib/styles";
 import type { DishVariant, IngredientsOk, ZeptoState } from "@/lib/types";
 import { ArrowRight, Check, Minus, Plus, Refresh } from "../icons";
+import { RecipeGeminiBadge } from "./gemini-badge";
 import { SampleBadge } from "./style-picker";
 
 const CATEGORY_ORDER = Object.keys(CATEGORY_LABELS);
@@ -64,6 +65,11 @@ export function IngredientList({
         {list && list.source !== "gemini" && (
           <div className="mt-4">
             <SampleBadge source={list.source} />
+          </div>
+        )}
+        {list && list.source === "gemini" && (
+          <div className="mt-4">
+            <RecipeGeminiBadge />
           </div>
         )}
         {onSave && (
@@ -130,8 +136,8 @@ export function IngredientList({
                   </button>
                 </div>
               </div>
-              <p className="font-mono text-[11.5px] text-paper/40">
-                {chosen.length}/{items.length} selected · untick what you have
+              <p className="font-mono text-[12.5px] text-paper/40">
+                {chosen.length}/{items.length} selected · untick what you already have
               </p>
             </div>
 
@@ -195,7 +201,7 @@ export function IngredientList({
                 <p className="truncate text-[14px] font-semibold">
                   {chosen.length} items <span className="font-normal text-paper/45">· est. {inr(estimate)}</span>
                 </p>
-                <p className="truncate font-mono text-[11px] text-paper/40">
+                <p className="truncate font-mono text-[12.5px] text-paper/40">
                   {zepto.connected ? "Ready to build on Zepto" : "You'll connect Zepto next"}
                 </p>
               </div>

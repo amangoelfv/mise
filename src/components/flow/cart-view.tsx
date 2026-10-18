@@ -3,6 +3,7 @@
 import { inr } from "@/lib/client";
 import type { CartLine, CartStatus } from "@/lib/contract";
 import { ArrowLeft, ArrowRight, Check, Close, Minus, Plus, Refresh } from "../icons";
+import { CartGeminiBadge } from "./gemini-badge";
 
 export type CartPhase =
   | { phase: "building" }
@@ -152,12 +153,15 @@ export function CartView({
           {variantTitle}
           {status.etaMinutes ? ` · arrives in about ${status.etaMinutes} min` : ""}
         </p>
+        <div className="animate-rise mt-4 flex justify-center [animation-delay:150ms]">
+          <CartGeminiBadge />
+        </div>
       </div>
 
       <div className="panel animate-rise mt-8 overflow-hidden [animation-delay:180ms]">
         <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
           <span className="label">Your Zepto cart</span>
-          <span className="font-mono text-[11px] text-paper/35">{editable ? "tap − + to adjust · ✕ to remove" : `${eff.lines.length} items`}</span>
+          <span className="font-mono text-[12px] text-paper/35">{editable ? "− + adjust · ✕ remove" : `${eff.lines.length} items`}</span>
         </div>
 
         {empty ? (
@@ -172,7 +176,7 @@ export function CartView({
                     <Thumb src={line.imageUrl} name={line.name} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[14.5px] leading-tight">{line.name}</p>
-                      <p className="mt-0.5 font-mono text-[11.5px] text-paper/45">{line.packSize}</p>
+                      <p className="mt-0.5 font-mono text-[12.5px] text-paper/45">{line.packSize}</p>
                     </div>
                     {editable ? (
                       <div className="flex items-center rounded-[9px] border border-line">
@@ -197,12 +201,12 @@ export function CartView({
                         </button>
                       </div>
                     ) : (
-                      line.quantity > 1 && <span className="font-mono text-[11.5px] text-paper/45">×{line.quantity}</span>
+                      line.quantity > 1 && <span className="font-mono text-[12.5px] text-paper/45">×{line.quantity}</span>
                     )}
                     <div className="w-[62px] shrink-0 text-right">
                       <p className="font-mono text-[13.5px] tabular-nums text-paper/90">{inr(line.priceInr)}</p>
                       {line.mrpInr && line.mrpInr > line.priceInr && (
-                        <p className="font-mono text-[11px] tabular-nums text-paper/30 line-through">{inr(line.mrpInr)}</p>
+                        <p className="font-mono text-[12px] tabular-nums text-paper/30 line-through">{inr(line.mrpInr)}</p>
                       )}
                     </div>
                     {editable && (
@@ -218,10 +222,10 @@ export function CartView({
                   </div>
                   {line.reason && (
                     <details className="mt-1 pl-[3.6rem]">
-                      <summary className="cursor-pointer list-none text-[11px] text-paper/40 transition hover:text-paper/70 [&::-webkit-details-marker]:hidden">
-                        Why this pick
+                      <summary className="cursor-pointer list-none text-[12.5px] text-paper/40 transition hover:text-paper/70 [&::-webkit-details-marker]:hidden">
+                        AI · why this pick
                       </summary>
-                      <p className="mt-1 text-[12px] leading-relaxed text-paper/55">{line.reason}</p>
+                      <p className="mt-1 text-[12.5px] leading-relaxed text-paper/55">{line.reason}</p>
                     </details>
                   )}
                 </li>
@@ -242,18 +246,18 @@ export function CartView({
                 {savedFromKitchen > 0 && <span className="normal-case tracking-normal">saved you ~{inr(savedFromKitchen)}</span>}
               </p>
               <p className="mb-3 text-[12.5px] leading-relaxed text-paper/55">
-                Based on recent orders on your connected Zepto, you likely still have these — so we left them out to avoid re-buying. Need one anyway? Add it.
+                From your recent Zepto orders, you likely still have these, so we left them out. Need one anyway? Add it back.
               </p>
               <ul className="space-y-1">
                 {stillSkipped.map((s) => (
                   <li key={s.ingredientId} className="flex items-center justify-between gap-3 py-0.5">
                     <span className="min-w-0 flex-1 truncate text-[14px] text-paper/85">{s.name}</span>
-                    <span className="shrink-0 font-mono text-[11px] text-paper/40">{haveLine(s)}</span>
+                    <span className="shrink-0 font-mono text-[12px] text-paper/40">{haveLine(s)}</span>
                     {editable && s.line && (
                       <button
                         type="button"
                         onClick={() => onAddBack(lineKey(s.line!))}
-                        className="shrink-0 rounded-full border border-herb/40 px-2.5 py-1 text-[11.5px] text-herb transition hover:bg-herb/10"
+                        className="shrink-0 rounded-full border border-herb/40 px-2.5 py-1 text-[12.5px] text-herb transition hover:bg-herb/10"
                       >
                         + Add
                       </button>
@@ -316,7 +320,7 @@ export function CartView({
             </span>
           ))}
         </div>
-        <p className="mt-2 font-mono text-[11px] text-paper/35">On our Zepto for now · connect your own account — coming soon</p>
+        <p className="mt-2 font-mono text-[12.5px] text-paper/35">On our Zepto for now · connect your own account (coming soon)</p>
       </div>
 
       {/* Primary action: we place it and deliver to the user's address. */}

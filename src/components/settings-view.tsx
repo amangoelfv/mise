@@ -66,7 +66,7 @@ export function SettingsView({
   return (
     <main className="mx-auto w-full max-w-2xl px-5 pb-24 pt-10 sm:px-8">
       <h1 className="display animate-rise text-[40px]">Settings</h1>
-      <p className="animate-rise mt-3 text-paper/50 [animation-delay:60ms]">Stores, diet and defaults. Kitchen settings are saved on this device, for this account.</p>
+      <p className="animate-rise mt-3 text-paper/50 [animation-delay:60ms]">Your stores, diet and kitchen defaults, saved on this device.</p>
 
       <div className="mt-10 space-y-10">
         <Section id="connectors" title="Connectors" hint="Stores Mise can build carts in. Mise never sees your passwords or payment details.">
@@ -84,7 +84,7 @@ export function SettingsView({
                 )}
               </div>
               <p className="mt-0.5 font-mono text-[12px] text-paper/45">
-                {zepto.connected ? "Your kitchen is linked — build carts from any dish." : "Managed by your team."}
+                {zepto.connected ? "Your kitchen is linked. Build carts from any dish." : "Managed by your team."}
               </p>
             </div>
           </div>

@@ -43,7 +43,7 @@ export function notifyOrderPlaced(order: OrderRecord): Promise<void> {
       <h2 style="margin-bottom:2px">🧾 New order · ${esc(recipe)}</h2>
       ${sub ? `<p style="color:#888;margin-top:0">${esc(sub)}</p>` : ""}
       <p><b>${esc(order.contact.name)}</b> · ${esc(order.contact.phone)}<br/>
-      ${esc(order.address.line)}${order.address.landmark ? `, ${esc(order.address.landmark)}` : ""}${order.address.pincode ? ` – ${esc(order.address.pincode)}` : ""}</p>
+      ${esc(order.address.line)}${order.address.landmark ? `, ${esc(order.address.landmark)}` : ""}${order.address.pincode ? `, ${esc(order.address.pincode)}` : ""}</p>
       <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}</table>
       <p style="font-size:16px"><b>Total ${inr(order.totals.totalInr)}</b> · ETA ~${order.etaMinutes ?? 10} min</p>
       <p style="color:#888;font-size:12px">Order ${order.id} · ${new Date(order.createdAt).toLocaleString("en-IN")}</p>

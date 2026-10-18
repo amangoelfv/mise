@@ -25,13 +25,13 @@ export function AdminOrders({ orders }: { orders: OrderRecord[] }) {
               <p className="mt-0.5 text-[13px] text-paper/55">
                 {o.address.line}
                 {o.address.landmark ? `, ${o.address.landmark}` : ""}
-                {o.address.pincode ? ` – ${o.address.pincode}` : ""}
+                {o.address.pincode ? `, ${o.address.pincode}` : ""}
               </p>
             </div>
             <div className="shrink-0 text-right">
               <p className="dots text-[18px]">{inr(o.totals.totalInr)}</p>
               <span className="tag mt-1 border-saffron/30 text-saffron">{o.status}</span>
-              <p className="mt-1 font-mono text-[10.5px] text-paper/35">{new Date(o.createdAt).toLocaleString("en-IN")}</p>
+              <p className="mt-1 font-mono text-[12px] text-paper/35">{new Date(o.createdAt).toLocaleString("en-IN")}</p>
             </div>
           </div>
           <details className="group mt-3 border-t border-line pt-2">
@@ -43,7 +43,7 @@ export function AdminOrders({ orders }: { orders: OrderRecord[] }) {
                 <li key={`${o.id}-${i}`} className="flex items-baseline justify-between gap-3 text-[13px]">
                   <span className="text-paper/80">
                     {l.name}
-                    <span className="ml-2 font-mono text-[11px] text-paper/40">
+                    <span className="ml-2 font-mono text-[12px] text-paper/40">
                       {l.packSize}
                       {l.quantity > 1 ? ` ×${l.quantity}` : ""}
                     </span>

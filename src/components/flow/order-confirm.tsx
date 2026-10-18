@@ -67,7 +67,7 @@ export function OrderConfirm({
             <p className="text-[14px]">
               {packs} item{packs === 1 ? "" : "s"} · {summary.products} product{summary.products === 1 ? "" : "s"}
             </p>
-            <p className="mt-0.5 font-mono text-[11.5px] text-paper/45">
+            <p className="mt-0.5 font-mono text-[12.5px] text-paper/45">
               Delivered to your door{summary.etaMinutes ? ` · ~${summary.etaMinutes} min` : ""}
             </p>
           </div>
@@ -81,7 +81,7 @@ export function OrderConfirm({
           <Field label="Landmark (optional)" value={landmark} onChange={setLandmark} placeholder="Nearby landmark" />
         </div>
 
-        <p className="font-mono text-[11px] leading-relaxed text-paper/40">
+        <p className="font-mono text-[12.5px] leading-relaxed text-paper/40">
           We place this order on our Zepto and deliver it to you. You don&apos;t need a Zepto account.
         </p>
 

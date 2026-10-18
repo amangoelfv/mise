@@ -18,6 +18,7 @@ import { CartView, EMPTY_EDITS, effectiveCart, type CartEdits, type CartPhase } 
 import { IngredientList } from "./ingredient-list";
 import { OrderConfirm, type DeliveryDetails } from "./order-confirm";
 import { ProfileDialog } from "./profile-dialog";
+import { StorePicker } from "./store-picker";
 import { StylePicker } from "./style-picker";
 
 type Stage = "ask" | "styles" | "ingredients" | "cart";
@@ -75,6 +76,7 @@ export function Flow({
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState<string | null>(null);
   const [cartEdits, setCartEdits] = useState<CartEdits>(EMPTY_EDITS);
+  const [storeOpen, setStoreOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [savedToPlan, setSavedToPlan] = useState(false);
 
@@ -447,7 +449,7 @@ export function Flow({
             What do you want to eat today?
           </h1>
           <p className="animate-rise mx-auto mt-5 max-w-xl text-center text-[15px] leading-relaxed text-paper/55 [animation-delay:90ms]">
-            Tailored to your nutrition &amp; budget, minus what&apos;s already in your kitchen — built on live Zepto and delivered to your door.
+            Tailored to your nutrition and budget, minus what&apos;s already in your kitchen. Built on live Zepto and delivered to your door.
           </p>
           {/* z-20: the autocomplete list must sit above the animated siblings below it */}
           <div className="animate-rise relative z-20 mt-12 w-full [animation-delay:120ms]">
@@ -494,7 +496,7 @@ export function Flow({
           }
           onServings={setServings}
           onRetry={() => chooseStyle(choice)}
-          onBuild={() => buildCart()}
+          onBuild={() => setStoreOpen(true)}
           onSave={saveToPlan}
           saved={savedToPlan}
         />
@@ -558,6 +560,15 @@ export function Flow({
         })()}
 
       <ProfileDialog open={profileOpen} onDone={profileDone} />
+
+      <StorePicker
+        open={storeOpen}
+        onClose={() => setStoreOpen(false)}
+        onContinue={() => {
+          setStoreOpen(false);
+          void buildCart();
+        }}
+      />
     </main>
   );
 }

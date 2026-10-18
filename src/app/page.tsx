@@ -77,7 +77,7 @@ const STEPS = [
 const DIFFERENTIATORS: [string, string][] = [
   ["Nutrition", "Your age sets a daily protein target that tunes every recipe."],
   ["Affordability", "Your budget preference steers which product gets picked."],
-  ["Inventory-aware", "Skips what you already bought on Zepto — real ₹ saved."],
+  ["Inventory-aware", "Skips what you already bought on Zepto. Real ₹ saved."],
 ];
 
 const PIPELINE = [
@@ -193,7 +193,7 @@ export default function Landing() {
                 Someone has to translate between the two, and tonight that someone is you.
               </p>
               <p className="reveal mt-7 max-w-md border-l-2 border-saffron/40 pl-4 text-[14.5px] leading-relaxed text-paper/50" style={reveal(3)}>
-                Mise makes that translation affordable and nutrition-smart for everyday Indian kitchens — in step with
+                Mise makes that translation affordable and nutrition-smart for everyday Indian kitchens, in step with
                 zero hunger (SDG&nbsp;2) and good health (SDG&nbsp;3).
               </p>
             </div>
@@ -383,7 +383,7 @@ export default function Landing() {
                 <div key={name} className="flex items-center gap-4 px-5 py-3.5">
                   <StoreMark name={name} size={40} live={status === "Live"} />
                   <p className={`flex-1 text-[15px] ${status === "Live" ? "font-semibold" : "text-paper/55"}`}>{name}</p>
-                  <span className="hidden font-mono text-[11.5px] text-paper/40 sm:inline">{login}</span>
+                  <span className="hidden font-mono text-[12px] text-paper/40 sm:inline">{login}</span>
                   <span className={`tag ${status === "Live" ? "border-herb/30 text-herb" : ""}`}>{status}</span>
                 </div>
               ))}
