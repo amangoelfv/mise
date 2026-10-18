@@ -310,6 +310,14 @@ export function Flow({
   function removeLine(key: string) {
     setCartEdits((prev) => ({ ...prev, removed: new Set(prev.removed).add(key) }));
   }
+  function addBackLine(key: string) {
+    // Un-remove if it was removed, and mark it added so effectiveCart includes the skipped item's line.
+    setCartEdits((prev) => {
+      const removed = new Set(prev.removed);
+      removed.delete(key);
+      return { ...prev, added: new Set(prev.added).add(key), removed };
+    });
+  }
   function changeQty(key: string, delta: number) {
     if (!cart || (cart.phase !== "ready" && cart.phase !== "placing")) return;
     const line = cart.status.lines.find((l) => `${l.ingredientId}-${l.productId}` === key);
@@ -472,6 +480,7 @@ export function Flow({
           edits={cartEdits}
           onRemove={removeLine}
           onQty={changeQty}
+          onAddBack={addBackLine}
           onPlaceOrder={() => {
             setPlaceError(null);
             setConfirmOpen(true);

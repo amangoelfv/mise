@@ -11,17 +11,22 @@ export type CartPhase =
   | { phase: "placed"; status: CartStatus; order: { id: string; etaMinutes?: number }; address: string }
   | { phase: "failed"; message: string };
 
-// ── In-cart edits (remove / change quantity), applied on top of the built cart ──
+// ── In-cart edits (remove / change quantity / add back a skipped item) ──────────
 export interface CartEdits {
   removed: ReadonlySet<string>;
   qty: Readonly<Record<string, number>>;
+  /** Keys of "already have" items the user chose to add back into the cart. */
+  added: ReadonlySet<string>;
 }
-export const EMPTY_EDITS: CartEdits = { removed: new Set(), qty: {} };
+export const EMPTY_EDITS: CartEdits = { removed: new Set(), qty: {}, added: new Set() };
 export const lineKey = (l: Pick<CartLine, "ingredientId" | "productId">) => `${l.ingredientId}-${l.productId}`;
 
-/** The cart as the user has edited it: removed lines dropped, quantities (and prices) adjusted, totals recomputed. */
+/** The cart as the user has edited it: skipped items added back, removed lines dropped, quantities (and prices) adjusted, totals recomputed. */
 export function effectiveCart(status: CartStatus, edits: CartEdits) {
-  const lines = status.lines
+  const addedBack = (status.skipped ?? [])
+    .map((s) => s.line)
+    .filter((l): l is CartLine => !!l && edits.added.has(lineKey(l)));
+  const lines = [...status.lines, ...addedBack]
     .filter((l) => !edits.removed.has(lineKey(l)))
     .map((l) => {
       const q = edits.qty[lineKey(l)] ?? l.quantity;
@@ -46,6 +51,7 @@ export function CartView({
   edits,
   onRemove,
   onQty,
+  onAddBack,
   onPlaceOrder,
   onRetry,
   onBack,
@@ -58,6 +64,7 @@ export function CartView({
   edits: CartEdits;
   onRemove: (key: string) => void;
   onQty: (key: string, delta: number) => void;
+  onAddBack: (key: string) => void;
   onPlaceOrder: () => void;
   onRetry: () => void;
   onBack: () => void;
@@ -223,22 +230,36 @@ export function CartView({
           </ul>
         )}
 
-        {status.skipped && status.skipped.length > 0 && (
-          <div className="border-t border-line bg-herb/[0.04] px-5 py-4">
-            <p className="label mb-1 text-herb">Already in your kitchen</p>
-            <p className="mb-3 text-[12.5px] leading-relaxed text-paper/55">
-              We checked your recent Zepto orders — you likely still have these, so we left them out so you don&apos;t re-buy.
-            </p>
-            <ul className="space-y-1.5">
-              {status.skipped.map((s) => (
-                <li key={s.ingredientId} className="flex items-baseline justify-between gap-3">
-                  <span className="text-[14px] text-paper/85">{s.name}</span>
-                  <span className="shrink-0 font-mono text-[11px] text-paper/45">{haveLine(s)}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {(() => {
+          // Hide items the user already added back — they now live in the cart list above.
+          const stillSkipped = (status.skipped ?? []).filter((s) => !(s.line && edits.added.has(lineKey(s.line))));
+          if (stillSkipped.length === 0) return null;
+          return (
+            <div className="border-t border-line bg-herb/[0.04] px-5 py-4">
+              <p className="label mb-1 text-herb">Already in your kitchen</p>
+              <p className="mb-3 text-[12.5px] leading-relaxed text-paper/55">
+                We checked your recent Zepto orders — you likely still have these, so we left them out so you don&apos;t re-buy. Need one anyway? Add it.
+              </p>
+              <ul className="space-y-1">
+                {stillSkipped.map((s) => (
+                  <li key={s.ingredientId} className="flex items-center justify-between gap-3 py-0.5">
+                    <span className="min-w-0 flex-1 truncate text-[14px] text-paper/85">{s.name}</span>
+                    <span className="shrink-0 font-mono text-[11px] text-paper/40">{haveLine(s)}</span>
+                    {editable && s.line && (
+                      <button
+                        type="button"
+                        onClick={() => onAddBack(lineKey(s.line!))}
+                        className="shrink-0 rounded-full border border-herb/40 px-2.5 py-1 text-[11.5px] text-herb transition hover:bg-herb/10"
+                      >
+                        + Add
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
 
         {status.unavailable.length > 0 && (
           <div className="border-t border-line px-5 py-3">

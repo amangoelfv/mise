@@ -131,6 +131,8 @@ export interface CartStatus {
     boughtDaysAgo?: number;
     /** Typical shelf life in days — so it's still usable now. */
     shelfLifeDays?: number;
+    /** Resolved product for this item, so the user can add it back to the cart in one tap. */
+    line?: CartLine;
   }[];
   totals?: { itemsInr: number; deliveryInr?: number; totalInr: number; currency: "INR" };
   etaMinutes?: number;
