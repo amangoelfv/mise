@@ -1,4 +1,4 @@
-import type { CartItem, Diet, DishStyleId } from "./contract";
+import type { BudgetPreference, CartItem, Diet, DishStyleId } from "./contract";
 
 /** "sample": no Gemini configured. "fallback": Gemini failed on every model. Both serve the built-in menu (src/lib/feed.ts). */
 export type Source = "gemini" | "sample" | "fallback";
@@ -38,6 +38,9 @@ export interface VariantsInput {
   query: string;
   diet: Diet;
   avoid: string[];
+  budget: BudgetPreference;
+  /** Derived from age band and weight on the device; null when the profile was skipped. */
+  proteinTargetG: number | null;
 }
 
 export interface IngredientsInput {
@@ -48,6 +51,7 @@ export interface IngredientsInput {
   servings: number;
   diet: Diet;
   avoid: string[];
+  budget: BudgetPreference;
 }
 
 export interface CartBody {
@@ -56,6 +60,7 @@ export interface CartBody {
   items: CartItem[];
   diet: Diet;
   avoid: string[];
+  budget: BudgetPreference;
   pincode?: string;
   dryRun?: boolean;
 }
