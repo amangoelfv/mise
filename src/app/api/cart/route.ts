@@ -1,6 +1,6 @@
 import { CartApiError, createCart } from "@/lib/cart-api";
 import { CONTRACT_VERSION, type CartItem, type CartRequest } from "@/lib/contract";
-import { CATEGORIES, DIETS, STYLES, UNITS, fail, num, oneOf, readJson, requireUser, str, strList } from "@/lib/http";
+import { BUDGETS, CATEGORIES, DIETS, STYLES, UNITS, fail, num, oneOf, readJson, requireUser, str, strList } from "@/lib/http";
 import { cartConnector } from "@/lib/connectors";
 import { notifyCartBuilt } from "@/lib/notify";
 import { styleById } from "@/lib/styles";
@@ -65,7 +65,11 @@ export async function POST(req: Request) {
       variantTitle: str(dish.variantTitle, "", 48),
       servings: Math.round(num(body.servings, 2, 1, 12)),
     },
-    preferences: { diet: oneOf(body.diet, DIETS, "any"), avoid: strList(body.avoid, 10, 40) },
+    preferences: {
+      diet: oneOf(body.diet, DIETS, "any"),
+      avoid: strList(body.avoid, 10, 40),
+      budget: oneOf(body.budget, BUDGETS, "best_rated"),
+    },
     items,
   };
 

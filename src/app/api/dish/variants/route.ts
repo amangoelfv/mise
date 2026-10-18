@@ -1,5 +1,5 @@
 import { getVariants } from "@/lib/gemini";
-import { DIETS, fail, oneOf, readJson, requireUser, str, strList } from "@/lib/http";
+import { BUDGETS, DIETS, fail, num, oneOf, readJson, requireUser, str, strList } from "@/lib/http";
 
 export async function POST(req: Request) {
   const user = await requireUser();
@@ -11,7 +11,14 @@ export async function POST(req: Request) {
 
   try {
     return Response.json(
-      await getVariants({ query, diet: oneOf(body.diet, DIETS, "any"), avoid: strList(body.avoid, 10, 40) }),
+      await getVariants({
+        query,
+        diet: oneOf(body.diet, DIETS, "any"),
+        avoid: strList(body.avoid, 10, 40),
+        budget: oneOf(body.budget, BUDGETS, "best_rated"),
+        // Derived on the device; the raw weight and age band never leave it.
+        proteinTargetG: body.proteinTargetG == null ? null : Math.round(num(body.proteinTargetG, 0, 20, 300)) || null,
+      }),
     );
   } catch (error) {
     console.error("[dish/variants]", error);

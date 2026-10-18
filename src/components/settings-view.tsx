@@ -1,21 +1,21 @@
 "use client";
 
-import { type ReactNode } from "react";
-import type { Diet } from "@/lib/contract";
+import { useState, type ReactNode } from "react";
+import { HEIGHT_CM, WEIGHT_KG, mealProteinShareG, proteinTargetG } from "@/lib/nutrition";
+import { AGE_BAND_OPTIONS, BUDGET_OPTIONS, DIET_OPTIONS } from "@/lib/options";
 import type { ZeptoState } from "@/lib/types";
-import { updatePrefs, usePrefs } from "@/lib/prefs";
+import { setPrefsUser, updatePrefs, usePrefs } from "@/lib/prefs";
 import { Logout, Minus, Plus } from "./icons";
 import { StoreMark } from "./zepto-connect";
 
-const DIETS: { id: Diet; label: string }[] = [
-  { id: "any", label: "Anything" },
-  { id: "vegetarian", label: "Vegetarian" },
-  { id: "eggetarian", label: "Eggetarian" },
-  { id: "vegan", label: "Vegan" },
-  { id: "jain", label: "Jain" },
-];
-
 const COMING_SOON = ["Blinkit", "Swiggy Instamart", "BigBasket", "Amazon Fresh"];
+
+/** A half-typed number is not an answer, so out-of-range stores null — see `draft` below. */
+function toNumber(digits: string, range: { min: number; max: number }): number | null {
+  const n = Number(digits);
+  if (!digits || !Number.isFinite(n) || n === 0) return null;
+  return n >= range.min && n <= range.max ? n : null;
+}
 
 function Section({ id, title, hint, children }: { id: string; title: string; hint?: string; children: ReactNode }) {
   return (
@@ -46,20 +46,30 @@ export function SettingsView({
   zepto,
   system,
 }: {
-  user: { name: string; email: string; picture?: string; demo: boolean };
+  user: { id: string; name: string; email: string; picture?: string; demo: boolean };
   zepto: ZeptoState;
   system: { gemini: boolean; cartApi: "live" | "local" };
 }) {
+  // Before usePrefs(), so the first snapshot is this account's record.
+  setPrefsUser(user.id);
+
   const prefs = usePrefs();
+  const proteinTarget = proteinTargetG(prefs.ageBand, prefs.weightKg);
+  /**
+   * What the person has typed, which is NOT the same as what is stored. Binding these fields
+   * straight to prefs made them impossible to use: typing "7" towards "70" is out of range, so
+   * it stored null, and the field snapped back to empty before the second digit. Null means
+   * "not editing", so a value arriving from storage still shows.
+   */
+  const [draft, setDraft] = useState<{ weight?: string; height?: string }>({});
 
   return (
     <main className="mx-auto w-full max-w-2xl px-5 pb-24 pt-10 sm:px-8">
       <h1 className="display animate-rise text-[40px]">Settings</h1>
-      <p className="animate-rise mt-3 text-paper/50 [animation-delay:60ms]">Stores, diet and defaults. Kitchen settings are saved on this device.</p>
+      <p className="animate-rise mt-3 text-paper/50 [animation-delay:60ms]">Stores, diet and defaults. Kitchen settings are saved on this device, for this account.</p>
 
       <div className="mt-10 space-y-10">
         <Section id="connectors" title="Connectors" hint="Stores Mise can build carts in. Mise never sees your passwords or payment details.">
-          {/* Read-only here. Connecting a store is an operator action on the admin path. */}
           <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center">
             <StoreMark name="Zepto" size={44} live={zepto.connected} />
             <div className="min-w-0 flex-1">
@@ -74,7 +84,7 @@ export function SettingsView({
                 )}
               </div>
               <p className="mt-0.5 font-mono text-[12px] text-paper/45">
-                {zepto.connected ? "Your kitchen is linked — build carts from any dish." : "Not linked yet."}
+                {zepto.connected ? "Your kitchen is linked — build carts from any dish." : "Managed by your team."}
               </p>
             </div>
           </div>
@@ -87,7 +97,7 @@ export function SettingsView({
           ))}
         </Section>
 
-        <Section id="kitchen" title="Kitchen" hint="Sent to Gemini with every dish. Saved on this device.">
+        <Section id="kitchen" title="Kitchen" hint="Sent to Gemini with every dish. Saved on this device, for this account.">
           <Row title="Default servings" hint="You can change it per dish too.">
             <div className="flex items-center rounded-[10px] border border-line">
               <button
@@ -114,7 +124,7 @@ export function SettingsView({
           <div className="px-5 py-4">
             <p className="text-[15px]">Diet</p>
             <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Diet">
-              {DIETS.map((diet) => (
+              {DIET_OPTIONS.map((diet) => (
                 <button
                   key={diet.id}
                   type="button"
@@ -126,6 +136,58 @@ export function SettingsView({
                   {diet.label}
                 </button>
               ))}
+            </div>
+          </div>
+          <div className="px-5 py-4">
+            <p className="text-[15px]">Age</p>
+            <p className="mt-0.5 text-[13px] text-paper/45">Sets how much protein a day we aim for.</p>
+            <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Age">
+              {AGE_BAND_OPTIONS.map((band) => (
+                <button
+                  key={band.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={prefs.ageBand === band.id}
+                  onClick={() => updatePrefs({ ageBand: prefs.ageBand === band.id ? null : band.id })}
+                  className={`rounded-[10px] border px-3.5 py-1.5 text-[13.5px] transition ${prefs.ageBand === band.id ? "border-saffron bg-saffron text-ink" : "border-line text-paper/60 hover:border-paper/30 hover:text-paper"}`}
+                >
+                  {band.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="px-5 py-4">
+            <p className="text-[15px]">Weight & height</p>
+            <p className="mt-0.5 text-[13px] text-paper/45">
+              {proteinTarget
+                ? `About ${proteinTarget} g protein a day, roughly ${mealProteinShareG(proteinTarget)} g a meal. A general guide, not nutritional advice.`
+                : "Optional. Weight sets the protein target; height is kept for later."}
+            </p>
+            <div className="mt-3 flex gap-2">
+              <input
+                inputMode="numeric"
+                aria-label="Weight in kilograms"
+                value={draft.weight ?? (prefs.weightKg === null ? "" : String(prefs.weightKg))}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                  setDraft((d) => ({ ...d, weight: digits }));
+                  updatePrefs({ weightKg: toNumber(digits, WEIGHT_KG) });
+                }}
+                placeholder="kg"
+                className="h-10 w-24 rounded-[10px] border border-line bg-ink px-3 text-center font-mono text-[14px] outline-none placeholder:text-paper/20 focus:border-saffron"
+              />
+              <input
+                inputMode="numeric"
+                aria-label="Height in centimetres"
+                value={draft.height ?? (prefs.heightCm === null ? "" : String(prefs.heightCm))}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                  setDraft((d) => ({ ...d, height: digits }));
+                  updatePrefs({ heightCm: toNumber(digits, HEIGHT_CM) });
+                }}
+                placeholder="cm"
+                className="h-10 w-24 rounded-[10px] border border-line bg-ink px-3 text-center font-mono text-[14px] outline-none placeholder:text-paper/20 focus:border-saffron"
+              />
             </div>
           </div>
           <div className="px-5 py-4">
@@ -154,6 +216,25 @@ export function SettingsView({
               />
             </button>
           </Row>
+          <div className="px-5 py-4">
+            <p className="text-[15px]">Shopping</p>
+            <p className="mt-0.5 text-[13px] text-paper/45">How your store picks between products that both fit.</p>
+            <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Shopping preference">
+              {BUDGET_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={prefs.budget === option.id}
+                  onClick={() => updatePrefs({ budget: option.id })}
+                  title={option.hint}
+                  className={`rounded-[10px] border px-3.5 py-1.5 text-[13.5px] transition ${prefs.budget === option.id ? "border-saffron bg-saffron text-ink" : "border-line text-paper/60 hover:border-paper/30 hover:text-paper"}`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <Row title="Delivery pincode" hint="Optional. Helps match what's in stock near you.">
             <input
               inputMode="numeric"
@@ -194,7 +275,7 @@ export function SettingsView({
           <Row title="Gemini" hint={system.gemini ? "Generating live with your API key." : "Using built-in sample data. Set GEMINI_API_KEY."}>
             <StatusPill on={system.gemini} onLabel="Live" offLabel="Sample" />
           </Row>
-          <Row title="Cart API" hint={system.cartApi === "live" ? "Sending carts to CART_API_URL." : "Resolving carts in-process."}>
+          <Row title="Cart API" hint={system.cartApi === "live" ? "Sending carts to CART_API_URL." : "Resolving carts in-process on live Zepto."}>
             <StatusPill on={system.cartApi === "live"} onLabel="Live" offLabel="In-process" />
           </Row>
         </Section>
@@ -205,7 +286,9 @@ export function SettingsView({
 
 function StatusPill({ on, onLabel, offLabel }: { on: boolean; onLabel: string; offLabel: string }) {
   return (
-    <span className={`tag ${on ? "border-herb/30 text-herb" : "border-turmeric/30 text-turmeric"}`}>
+    <span
+      className={`tag ${on ? "border-herb/30 text-herb" : "border-turmeric/30 text-turmeric"}`}
+    >
       <span className={`size-1.5 rounded-full ${on ? "bg-herb" : "bg-turmeric"}`} />
       {on ? onLabel : offLabel}
     </span>

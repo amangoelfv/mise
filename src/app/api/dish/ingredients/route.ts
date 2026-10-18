@@ -1,5 +1,5 @@
 import { GeminiUnavailableError, getIngredients } from "@/lib/gemini";
-import { DIETS, STYLES, fail, num, oneOf, readJson, requireUser, str, strList } from "@/lib/http";
+import { BUDGETS, DIETS, STYLES, fail, num, oneOf, readJson, requireUser, str, strList } from "@/lib/http";
 
 export async function POST(req: Request) {
   const user = await requireUser();
@@ -24,6 +24,7 @@ export async function POST(req: Request) {
         servings: Math.round(num(body.servings, 2, 1, 12)),
         diet: oneOf(body.diet, DIETS, "any"),
         avoid: strList(body.avoid, 10, 40),
+        budget: oneOf(body.budget, BUDGETS, "best_rated"),
       }),
     );
   } catch (error) {

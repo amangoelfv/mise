@@ -1,9 +1,10 @@
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
-import type { CartItem, Diet, DishStyleId } from "./contract";
+import type { BudgetPreference, CartItem, Diet, DishStyleId } from "./contract";
 import { CATEGORIES, STYLES, UNITS, num, oneOf, str, strList } from "./http";
 import { feedIngredients, feedVariants, findDish } from "./feed";
 import { POPULAR_DISHES } from "./feed-names";
-import { DISH_STYLES, styleById } from "./styles";
+import { ingredientsPrompt, productSelectionPrompt, variantsPrompt } from "./prompts";
+import { DISH_STYLES } from "./styles";
 import type { IngredientsInput, IngredientsOk, VariantsInput, VariantsResult } from "./types";
 
 const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
@@ -14,14 +15,6 @@ const apiKey = process.env.GEMINI_API_KEY;
 const useVertex = process.env.GOOGLE_GENAI_USE_VERTEXAI === "true";
 const ai = apiKey || useVertex ? new GoogleGenAI(apiKey ? { apiKey } : {}) : null;
 export const geminiConfigured = !!ai;
-
-const DIET_RULES: Record<Diet, string> = {
-  any: "No dietary restriction.",
-  vegetarian: "Strictly vegetarian (Indian sense): no meat, fish, seafood or eggs. Dairy is fine.",
-  eggetarian: "Vegetarian plus eggs. No meat, fish or seafood.",
-  vegan: "Strictly vegan: no meat, fish, eggs, dairy, ghee or honey.",
-  jain: "Jain: vegetarian, no eggs, and no onion, garlic, potato, carrot, beetroot or other root vegetables.",
-};
 
 const PERSONA =
   "You are Mise, a precise, warm culinary assistant for home cooks in India who buy groceries on quick-commerce apps like Zepto. " +
@@ -171,21 +164,10 @@ function offlineIngredients(input: IngredientsInput, source: Offline): Ingredien
   return feedIngredients(dish, input.style, input.servings, source);
 }
 
-export async function getVariants({ query, diet, avoid }: VariantsInput): Promise<VariantsResult> {
+export async function getVariants({ query, diet, avoid, budget, proteinTargetG }: VariantsInput): Promise<VariantsResult> {
   if (!ai) return offlineVariants(query, "sample");
 
-  const prompt = [
-    `Someone typed: "${query}"`,
-    `Diet: ${DIET_RULES[diet]}`,
-    avoid.length ? `Must avoid: ${avoid.join(", ")}.` : "",
-    "Return the dish, then exactly four takes on it, one per style, in this order:",
-    ...DISH_STYLES.map((s) => `- ${s.id} (${s.label}): ${s.guidance}`),
-    "Every take must honour the diet and avoid list, and still be recognisably this dish.",
-    "Numbers are per serving and realistic. Keep language short and appetising; no emoji.",
-    "If the input is not a dish or food, set isDish to false, explain kindly in message, and return an empty variants array.",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const prompt = variantsPrompt({ query, diet, avoid, budget, proteinTargetG });
 
   let raw: Record<string, unknown>;
   try {
@@ -226,26 +208,7 @@ export async function getVariants({ query, diet, avoid }: VariantsInput): Promis
 export async function getIngredients(input: IngredientsInput): Promise<IngredientsOk> {
   if (!ai) return offlineIngredients(input, "sample");
 
-  const style = styleById(input.style);
-  const prompt = [
-    `Write the complete grocery list to cook "${input.variant.title}", a ${style.label.toLowerCase()} take on ${input.dish}${input.cuisine ? ` (${input.cuisine})` : ""}, for ${input.servings} servings.`,
-    `This take: ${input.variant.tagline}. Signature ingredients: ${input.variant.highlights.join(", ") || "chef's choice"}.`,
-    `Style guidance: ${style.guidance}`,
-    `Diet: ${DIET_RULES[input.diet]}`,
-    input.avoid.length ? `Must avoid (allergies/dislikes): ${input.avoid.join(", ")}.` : null,
-    "",
-    "Rules:",
-    "- Include everything needed, including oil, salt and spices. Typically 6–16 items.",
-    "- quantity/unit = the amount the recipe uses. Prefer g, ml or pcs; tsp/tbsp only for small amounts of spices, sauces or oil.",
-    "- searchQuery = the generic product a shopper would type into Zepto (e.g. 'penne pasta', 'fresh cream', 'parmesan cheese'). No brands unless the product is only sold by brand.",
-    "- pantryStaple = true only for things most Indian kitchens already have: salt, sugar, cooking oil, turmeric, red chilli powder, cumin, black pepper, atta, maida, water.",
-    "- optional = true for garnishes and add-ons the dish works without.",
-    "- substitutes: up to 2 acceptable alternatives, best first.",
-    "- estimatedPriceInr: approximate price in India of the smallest pack you would buy on Zepto (whole pack, not just the portion used).",
-    "- notes: only when useful (e.g. 'about 4 cloves', 'ripe'), otherwise omit.",
-  ]
-    .filter((line) => line !== null)
-    .join("\n");
+  const prompt = ingredientsPrompt(input);
 
   const fallback = (reason: unknown) => {
     console.error("[gemini] ingredients failed on every model; using the built-in menu:", reason instanceof Error ? reason.message : reason);
@@ -314,7 +277,7 @@ export interface AiSelectPick {
 }
 export type AiProductSelector = (
   items: AiSelectItem[],
-  context: { style: DishStyleId; diet: Diet },
+  context: { style: DishStyleId; diet: Diet; budget: BudgetPreference },
 ) => Promise<Map<string, AiSelectPick>>;
 
 const selectSchema = {
@@ -341,16 +304,7 @@ export const selectProducts: AiProductSelector = async (items, context) => {
   const out = new Map<string, AiSelectPick>();
   if (!ai || items.length === 0) return out;
 
-  const style = styleById(context.style);
-  const prompt = [
-    `Pick the single best Zepto product for each ingredient for a "${style.label}" take on the dish.`,
-    `What "${style.label}" means: ${style.guidance}`,
-    `Diet: ${DIET_RULES[context.diet]}`,
-    "Favour products that truly match the style (healthy → low-fat / whole-grain / no additives; high-protein → more protein per pack; restaurant → rich, authentic), a sensible pack size, a good rating and fair price.",
-    "Choose strictly from each ingredient's given options, by its pid. Keep each reason to at most 8 words.",
-    "Data (prices in INR):",
-    JSON.stringify(items),
-  ].join("\n");
+  const prompt = productSelectionPrompt({ style: context.style, diet: context.diet, budget: context.budget, items });
 
   try {
     const raw = record(await generateJson([FAST_MODEL, MODEL], prompt, selectSchema, 0.3));

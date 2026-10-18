@@ -101,7 +101,11 @@ export async function resolveCart(
       .filter((i) => i.options.length > 1);
     if (aiItems.length > 0) {
       try {
-        aiPicks = await aiSelect(aiItems, { style: request.dish.style, diet: request.preferences.diet });
+        aiPicks = await aiSelect(aiItems, {
+          style: request.dish.style,
+          diet: request.preferences.diet,
+          budget: request.preferences.budget ?? "best_rated",
+        });
       } catch (error) {
         console.warn("[resolve] AI selection failed, using algo picks:", error);
       }

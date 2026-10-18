@@ -16,7 +16,7 @@ async function SessionSettings() {
 
   return (
     <SettingsView
-      user={{ name: user.name, email: user.email, picture: user.picture, demo: !!user.demo }}
+      user={{ id: user.id, name: user.name, email: user.email, picture: user.picture, demo: !!user.demo }}
       zepto={zeptoState(connections)}
       system={{ gemini: geminiConfigured, cartApi: cartApiMode }}
     />

@@ -53,6 +53,34 @@ export async function setConnections(user: SessionUser, connections: Connections
   store.set(CONNECTORS_COOKIE, await sealToken({ uid: user.id, connections: { ...connections } }), cookieOptions);
 }
 
+/**
+ * Verifies a Google OAuth access token from our custom sign-in button. The audience check is what
+ * makes this safe for sign-in: a token Google issued to any other app is rejected.
+ */
+export async function verifyGoogleAccessToken(accessToken: string, clientId: string): Promise<SessionUser> {
+  const infoRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`, {
+    cache: "no-store",
+  });
+  if (!infoRes.ok) throw new Error(`Google rejected the token (${infoRes.status})`);
+  const info = (await infoRes.json()) as Record<string, unknown>;
+  if (info.aud !== clientId) throw new Error("Token was issued to a different Google client");
+  const email = typeof info.email === "string" ? info.email : "";
+  if (typeof info.sub !== "string" || !email || String(info.email_verified) !== "true") {
+    throw new Error("Google account email is not verified");
+  }
+  const profileRes = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+  const profile = profileRes.ok ? ((await profileRes.json()) as Record<string, unknown>) : {};
+  return {
+    id: `google:${info.sub}`,
+    email,
+    name: typeof profile.name === "string" && profile.name ? profile.name : email.split("@")[0],
+    picture: typeof profile.picture === "string" ? profile.picture : undefined,
+  };
+}
+
 const googleKeys = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 
 /** Verifies a Google Identity Services ID token and maps it to a session user. */

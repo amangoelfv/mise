@@ -18,6 +18,7 @@ async function SessionFlow({ searchParams }: { searchParams: PageProps<"/app">["
   const connections = await getConnections(user);
   return (
     <Flow
+      userId={user.id}
       firstName={user.name.split(/\s+/)[0]}
       initialQuery={query}
       zepto={zeptoState(connections)}
