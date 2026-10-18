@@ -41,6 +41,15 @@ export const KEY_PREFIX = "mise:prefs:v2:";
 export const LEGACY_KEY = "mise:prefs:v1";
 
 const listeners = new Set<() => void>();
+/**
+ * Accounts whose legacy migration has already been attempted. Keyed on the attempt, not on the
+ * write succeeding: if setItem throws (quota), re-entering the branch would hand read() a new
+ * object on every call — read() is getSnapshot, so that is a render loop — and would keep
+ * forcing profileStatus back to "unset", stranding the first-run dialog.
+ */
+const seedAttempted = new Set<string>();
+/** Cleared the first time a write is refused (private mode, quota): memory becomes the truth. */
+let storageWritable = true;
 let activeKey: string | null = null;
 let lastRaw: string | null = null;
 let current: Prefs = DEFAULT_PREFS;
@@ -104,6 +113,8 @@ export function getPrefs(): Prefs {
 
 function read(): Prefs {
   if (!activeKey) return DEFAULT_PREFS;
+  // Storage refused a write earlier, so it no longer reflects what the person chose.
+  if (!storageWritable) return current;
   let raw: string | null;
   try {
     raw = localStorage.getItem(activeKey);
@@ -112,7 +123,8 @@ function read(): Prefs {
   }
   // No record for this account yet: adopt the old device-global one, but still ask the
   // profile questions. Written through immediately so later reads take the normal path.
-  if (raw === null) {
+  if (raw === null && !seedAttempted.has(activeKey)) {
+    seedAttempted.add(activeKey);
     let legacy: string | null = null;
     try {
       legacy = localStorage.getItem(LEGACY_KEY);
@@ -121,11 +133,13 @@ function read(): Prefs {
     }
     if (legacy !== null) {
       current = { ...coercePrefs(parse(legacy)), profileStatus: "unset" };
-      lastRaw = JSON.stringify(current);
+      const next = JSON.stringify(current);
       try {
-        localStorage.setItem(activeKey, lastRaw);
+        localStorage.setItem(activeKey, next);
+        lastRaw = next;
       } catch {
         // Storage went away between the read and the write; keep the seed in memory.
+        storageWritable = false;
       }
       return current;
     }
@@ -138,12 +152,15 @@ function read(): Prefs {
 
 export function updatePrefs(patch: Partial<Prefs>) {
   current = { ...read(), ...patch };
-  if (activeKey) {
+  if (activeKey && storageWritable) {
+    const next = JSON.stringify(current);
     try {
-      lastRaw = JSON.stringify(current);
-      localStorage.setItem(activeKey, lastRaw);
+      localStorage.setItem(activeKey, next);
+      // Only mirror what actually landed, so a later read can trust the comparison.
+      lastRaw = next;
     } catch {
       // Storage unavailable (private mode): keep prefs in memory for this tab.
+      storageWritable = false;
     }
   }
   listeners.forEach((listener) => listener());
