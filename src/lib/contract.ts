@@ -7,7 +7,8 @@
 export const CONTRACT_VERSION = "1.0" as const;
 
 export type DishStyleId = "restaurant" | "basic" | "healthy" | "protein";
-export type Diet = "any" | "vegetarian" | "eggetarian" | "vegan" | "jain";
+export const DIET_VALUES = ["any", "vegetarian", "eggetarian", "vegan", "jain"] as const;
+export type Diet = (typeof DIET_VALUES)[number];
 export const BUDGET_PREFERENCES = ["best_rated", "best_price"] as const;
 /** How the cart service should rank candidate products for an ingredient. */
 export type BudgetPreference = (typeof BUDGET_PREFERENCES)[number];
