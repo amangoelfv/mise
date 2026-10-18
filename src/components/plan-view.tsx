@@ -29,7 +29,7 @@ export function PlanView({ userId, firstName }: { userId: string; firstName: str
     <main className="mx-auto w-full max-w-4xl px-5 pb-24 pt-10 sm:px-8">
       <h1 className="display animate-rise text-[40px]">Your plan</h1>
       <p className="animate-rise mt-3 text-paper/50 [animation-delay:60ms]">
-        Hi {firstName} — saved dishes and a week of meals, kept on this device for your account.
+        Hi {firstName}. Your saved dishes and a week of meals, kept on this device for your account.
       </p>
 
       <div className="mt-10 space-y-12">
@@ -114,7 +114,7 @@ export function PlanView({ userId, firstName }: { userId: string; firstName: str
                         <div key={key} className="relative min-h-[60px] rounded-[10px] border border-line bg-ink p-1.5">
                           <div className="flex h-full flex-col">
                             <span className="line-clamp-2 text-[12px] leading-tight text-paper/85">{dish.dish}</span>
-                            <span className="mt-auto truncate pt-1 font-mono text-[10px] text-paper/35">
+                            <span className="mt-auto truncate pt-1 font-mono text-[12px] text-paper/35">
                               {styleById(dish.style).label}
                             </span>
                           </div>
@@ -141,7 +141,7 @@ export function PlanView({ userId, firstName }: { userId: string; firstName: str
                               setOpenSlot(null);
                             }}
                             onBlur={() => setOpenSlot(null)}
-                            className="h-full w-full rounded-[8px] border border-line bg-ink-2 px-1 text-[11px] text-paper outline-none focus:border-saffron"
+                            className="h-full w-full rounded-[8px] border border-line bg-ink-2 px-1 text-[12px] text-paper outline-none focus:border-saffron"
                           >
                             <option value="">Add dish…</option>
                             {plan.saved.map((s) => (
@@ -173,8 +173,8 @@ export function PlanView({ userId, firstName }: { userId: string; firstName: str
               ))}
             </div>
           </div>
-          <p className="mt-3 flex items-center gap-1.5 px-1 font-mono text-[11px] text-paper/30">
-            <Calendar size={13} /> Mon–Sun · Breakfast, Lunch, Dinner
+          <p className="mt-3 flex items-center gap-1.5 px-1 font-mono text-[12px] text-paper/30">
+            <Calendar size={13} /> Mon to Sun · Breakfast, Lunch, Dinner
           </p>
         </section>
       </div>

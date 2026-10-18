@@ -78,8 +78,8 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
   return (
     <Dialog open={open} onClose={skip} title="Cook it your way" focusFirstField={false}>
       <p className="-mt-2 mb-6 text-[14px] leading-relaxed text-paper/55">
-        A few quick answers and Mise tailors every suggestion to you. Skip and we&apos;ll use sensible defaults — you
-        can change this under Settings whenever.
+        A few quick answers and Mise tailors every suggestion to you. Skip to use sensible defaults. You can change
+        this anytime in Settings.
       </p>
 
       <div className="space-y-6">
@@ -98,7 +98,7 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
           ))}
         </Group>
 
-        <Group label="Serves — how many people?">
+        <Group label="Serves: how many people?">
           <div className="flex items-center rounded-[10px] border border-line">
             <button
               type="button"
@@ -151,7 +151,7 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
           </div>
         </div>
 
-        <p className="font-mono text-[11.5px] leading-relaxed text-paper/40">
+        <p className="font-mono text-[12.5px] leading-relaxed text-paper/40">
           {target
             ? `About ${target} g protein a day, roughly ${mealProteinShareG(target)} g a meal. A general guide, not nutritional advice.`
             : "Optional. With your age and weight we can aim each dish at a sensible protein target."}

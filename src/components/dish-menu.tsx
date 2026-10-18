@@ -32,7 +32,7 @@ export function DishMenu({ catalog, onPick }: { catalog: CatalogDish[]; onPick: 
             type="button"
             aria-pressed={group === g}
             onClick={() => setGroup(g)}
-            className={`rounded-[9px] border px-2.5 py-1 font-mono text-[11.5px] transition ${group === g ? "border-paper bg-paper text-ink" : "border-line text-paper/55 hover:border-paper/30 hover:text-paper"}`}
+            className={`rounded-[9px] border px-2.5 py-1 font-mono text-[12px] transition ${group === g ? "border-paper bg-paper text-ink" : "border-line text-paper/55 hover:border-paper/30 hover:text-paper"}`}
           >
             {g}
           </button>
@@ -42,7 +42,7 @@ export function DishMenu({ catalog, onPick }: { catalog: CatalogDish[]; onPick: 
           role="switch"
           aria-checked={vegOnly}
           onClick={() => setVegOnly((v) => !v)}
-          className={`ml-auto inline-flex items-center gap-2 rounded-[9px] border px-2.5 py-1 font-mono text-[11.5px] transition ${vegOnly ? "border-herb/50 text-herb" : "border-line text-paper/55 hover:text-paper"}`}
+          className={`ml-auto inline-flex items-center gap-2 rounded-[9px] border px-2.5 py-1 font-mono text-[12px] transition ${vegOnly ? "border-herb/50 text-herb" : "border-line text-paper/55 hover:text-paper"}`}
         >
           <VegMark veg size={11} /> Veg only
         </button>
@@ -74,7 +74,7 @@ export function DishMenu({ catalog, onPick }: { catalog: CatalogDish[]; onPick: 
                       </span>
                     </span>
                     <span className="line-clamp-2 pl-[22px] text-[12.5px] leading-relaxed text-paper/45">{dish.summary}</span>
-                    <span className="mt-auto flex items-baseline gap-2 pl-[22px] pt-0.5 font-mono text-[11px]">
+                    <span className="mt-auto flex items-baseline gap-2 pl-[22px] pt-0.5 font-mono text-[12.5px]">
                       <span className="min-w-0 flex-1 truncate text-paper/35">{dish.cuisine}</span>
                       <span className="shrink-0 text-paper/30">from {dish.minutes} min</span>
                     </span>

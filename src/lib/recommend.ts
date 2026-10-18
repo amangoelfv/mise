@@ -8,9 +8,9 @@ import { type AgeBand, proteinTargetG } from "./nutrition";
  */
 export function recommendedStyle(ageBand: AgeBand | null, weightKg: number | null): { style: DishStyleId; reason: string } | null {
   if (!ageBand) return null;
-  if (ageBand === "senior") return { style: "protein", reason: "higher protein — matched to your age" };
-  if (ageBand === "under20") return { style: "protein", reason: "protein-forward — for your age" };
+  if (ageBand === "senior") return { style: "protein", reason: "higher protein, matched to your age" };
+  if (ageBand === "under20") return { style: "protein", reason: "protein-forward, for your age" };
   const protein = proteinTargetG(ageBand, weightKg);
   if (protein && protein >= 60) return { style: "protein", reason: `~${protein}g protein/day goal` };
-  return { style: "healthy", reason: "balanced — matched to your profile" };
+  return { style: "healthy", reason: "balanced, matched to your profile" };
 }

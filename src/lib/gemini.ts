@@ -7,8 +7,15 @@ import { ingredientsPrompt, productSelectionPrompt, variantsPrompt } from "./pro
 import { DISH_STYLES } from "./styles";
 import type { IngredientsInput, IngredientsOk, VariantsInput, VariantsResult } from "./types";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const FAST_MODEL = process.env.GEMINI_FAST_MODEL || "gemini-2.5-flash-lite";
+const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+const FAST_MODEL = process.env.GEMINI_FAST_MODEL || "gemini-flash-lite-latest";
+
+// Always-available aliases, appended after the configured models in every call. They
+// track the current stable Flash, so a retired or gated model name — e.g. a stale
+// GEMINI_MODEL env still set to "gemini-2.5-flash", which now 404s for new API keys —
+// self-heals to a working model instead of dropping us to the offline menu. Also the
+// safety net when the primary is rate-limited (429) or overloaded (503).
+const FALLBACK_MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest"];
 
 const apiKey = process.env.GEMINI_API_KEY;
 // On Google Cloud, GOOGLE_GENAI_USE_VERTEXAI=true + GOOGLE_CLOUD_PROJECT uses the service account instead of a key.
@@ -117,18 +124,35 @@ async function generateWith(model: string, prompt: string, schema: object, tempe
   }
 }
 
+/** Human-readable reason for a Gemini HTTP status, so logs say *why*, not just a number. */
+function geminiReason(status: number | undefined): string {
+  if (status === 404) return "model unavailable/gated for this key";
+  if (status === 429) return "rate limited";
+  if (status === 503) return "overloaded";
+  if (status === 400) return "bad request";
+  if (status === 401 || status === 403) return "auth/key rejected";
+  return "error";
+}
+
 /** Tries each model in order, so one unavailable or overloaded model doesn't fail the request. */
 async function generateJson(models: string[], prompt: string, schema: object, temperature: number): Promise<unknown> {
   let lastError: unknown;
-  for (const model of [...new Set(models)]) {
+  const order = [...new Set(models)];
+  for (let m = 0; m < order.length; m++) {
+    const model = order[m];
     // Overload (503) and rate limits (429) are often momentary: one quick retry before moving on.
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        return await generateWith(model, prompt, schema, temperature);
+        const result = await generateWith(model, prompt, schema, temperature);
+        if (m > 0) console.warn(`[gemini] recovered on fallback model "${model}" (after ${m} model(s) failed)`);
+        return result;
       } catch (error) {
         lastError = error;
         const status = (error as { status?: number }).status;
-        console.error(`[gemini] ${model} attempt ${attempt + 1} failed (${status ?? "no status"}):`, error instanceof Error ? error.message : error);
+        const next = order[m + 1];
+        const tail = next ? `→ trying "${next}"` : "→ no more models, using offline fallback";
+        console.error(`[gemini] "${model}" failed (${status ?? "no status"}: ${geminiReason(status)}) ${tail}`, error instanceof Error ? error.message : error);
+        // 503/429 can be momentary: one quick retry on the same model before moving on.
         if (status !== 503 && status !== 429) break;
         if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 700));
       }
@@ -240,7 +264,7 @@ export async function getVariants({ query, diet, avoid, budget, proteinTargetG }
 
   let raw: Record<string, unknown>;
   try {
-    raw = record(await generateJson([FAST_MODEL, MODEL], prompt, variantsSchema, 0.8));
+    raw = record(await generateJson([FAST_MODEL, MODEL, ...FALLBACK_MODELS], prompt, variantsSchema, 0.8));
   } catch (error) {
     console.error("[gemini] variants failed on every model; using the built-in menu:", error instanceof Error ? error.message : error);
     return offlineVariants(query, "fallback");
@@ -295,7 +319,7 @@ export async function getIngredients(input: IngredientsInput): Promise<Ingredien
   };
   let raw: Record<string, unknown>;
   try {
-    raw = record(await generateJson([MODEL, FAST_MODEL], prompt, ingredientsSchema, 0.4));
+    raw = record(await generateJson([MODEL, FAST_MODEL, ...FALLBACK_MODELS], prompt, ingredientsSchema, 0.4));
   } catch (error) {
     return fallback(error);
   }
@@ -390,7 +414,7 @@ export const selectProducts: AiProductSelector = async (items, context) => {
   const prompt = productSelectionPrompt({ style: context.style, diet: context.diet, budget: context.budget, items });
 
   try {
-    const raw = record(await generateJson([FAST_MODEL, MODEL], prompt, selectSchema, 0.3));
+    const raw = record(await generateJson([FAST_MODEL, MODEL, ...FALLBACK_MODELS], prompt, selectSchema, 0.3));
     const picks = Array.isArray(raw.picks) ? raw.picks : [];
     for (const p of picks) {
       const r = record(p);

@@ -6,6 +6,7 @@ import { recommendedStyle } from "@/lib/recommend";
 import { DISH_STYLES } from "@/lib/styles";
 import type { DishVariant, Source, VariantsOk } from "@/lib/types";
 import { DishIdeas } from "../dish-input";
+import { RecipeGeminiBadge } from "./gemini-badge";
 import { ArrowLeft, ArrowUpRight, Refresh } from "../icons";
 
 export function SampleBadge({ source }: { source: Source }) {
@@ -83,6 +84,11 @@ export function StylePicker({
             <SampleBadge source={variants.source} />
           </div>
         )}
+        {variants && variants.source === "gemini" && (
+          <div className="mt-4">
+            <RecipeGeminiBadge />
+          </div>
+        )}
       </div>
 
       <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
@@ -112,7 +118,7 @@ export function StylePicker({
                 </div>
               </div>
               <p className="label mt-5">{style.label}</p>
-              {recommended && <p className="mt-1 text-[12px] text-saffron/80">Recommended for you · {rec!.reason}</p>}
+              {recommended && <p className="mt-1 text-[12.5px] text-saffron/80">Recommended for you · {rec!.reason}</p>}
               {variant ? (
                 <>
                   <h3 className="mt-2 text-[22px] font-semibold leading-tight tracking-[-0.02em] [font-stretch:108%]">{variant.title}</h3>
@@ -148,8 +154,8 @@ export function StylePicker({
           );
         })}
       </div>
-      <p className="mt-5 text-center font-mono text-[11.5px] text-paper/30">
-        Estimates per serving.{share !== null && ` Protein shown against your ${share} g meal share.`} Pick one to get the exact list.
+      <p className="mt-5 text-center font-mono text-[12.5px] text-paper/30">
+        Estimates per serving.{share !== null && ` Protein counts toward your ${share} g meal share.`} Pick one for the exact list.
       </p>
     </section>
   );

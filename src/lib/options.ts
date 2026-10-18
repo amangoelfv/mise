@@ -16,7 +16,7 @@ export const DIET_OPTIONS: { id: Diet; label: string }[] = [
 /** Numeric labels rather than "middle-aged" / "old": unambiguous, and kinder to read. */
 export const AGE_BAND_OPTIONS: { id: AgeBand; label: string }[] = [
   { id: "under20", label: "Under 20" },
-  { id: "adult", label: "20–50" },
+  { id: "adult", label: "20 to 50" },
   { id: "senior", label: "50+" },
 ];
 
