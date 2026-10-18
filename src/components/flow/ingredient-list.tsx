@@ -4,7 +4,7 @@ import { CATEGORY_LABELS, formatQuantity, inr } from "@/lib/client";
 import type { CartItem } from "@/lib/contract";
 import { styleById } from "@/lib/styles";
 import type { DishVariant, IngredientsOk, ZeptoState } from "@/lib/types";
-import { ArrowRight, Check, Code, Minus, Plus, Refresh } from "../icons";
+import { ArrowRight, Check, Minus, Plus, Refresh } from "../icons";
 import { SampleBadge } from "./style-picker";
 
 const CATEGORY_ORDER = Object.keys(CATEGORY_LABELS);
@@ -22,7 +22,6 @@ export function IngredientList({
   onServings,
   onRetry,
   onBuild,
-  onShowPayload,
 }: {
   dish: string;
   variant: DishVariant;
@@ -36,7 +35,6 @@ export function IngredientList({
   onServings: (n: number) => void;
   onRetry: () => void;
   onBuild: () => void;
-  onShowPayload: () => void;
 }) {
   const style = styleById(variant.style);
   const chosen = items.filter((i) => !excluded.has(i.id));
@@ -182,16 +180,11 @@ export function IngredientList({
                   {chosen.length} items <span className="font-normal text-paper/45">· est. {inr(estimate)}</span>
                 </p>
                 <p className="truncate font-mono text-[11px] text-paper/40">
-                  {zepto.connected ? (zepto.via === "simulated" ? "Zepto · simulated" : "Zepto · connected") : "Zepto not connected yet"}
+                  {zepto.connected ? "Ready to build on Zepto" : "Connecting to Zepto…"}
                 </p>
               </div>
-              <button type="button" onClick={onShowPayload} className="btn-ghost h-11 px-3.5" aria-label="View cart JSON">
-                <Code size={17} />
-                <span className="hidden sm:inline">JSON</span>
-              </button>
               <button type="button" onClick={onBuild} disabled={!chosen.length} className="btn-accent h-11">
-                <span className="sm:hidden">Build cart</span>
-                <span className="hidden sm:inline">Build cart on Zepto</span>
+                Build my cart
                 <ArrowRight size={17} />
               </button>
             </div>

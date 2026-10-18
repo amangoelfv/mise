@@ -34,23 +34,38 @@ export interface ZeptoTokens {
   clientId: string;
 }
 
+/** Real expiry from a JWT's `exp` claim (ms), or null if it isn't a decodable JWT. */
+export function jwtExpiryMs(token: string): number | null {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(parts[1]!, "base64url").toString("utf8")) as { exp?: number };
+    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Temporary single-account demo override for hackathon / dev use.
- * When set, Mise uses this Zepto bearer token instead of the normal OAuth sign-in flow.
- * This is intentionally opt-in and should not be the default production model.
+ * Single-account env override for hosted/demo use (no interactive sign-in).
+ * When set, Mise can build carts on one shared Zepto account. The access token is
+ * short-lived (~1h), so the expiry is read from the token itself and the connector
+ * layer refreshes it. For refresh to work the env MUST also provide a valid refresh
+ * token and the client id it was issued to (ZEPTO_CLIENT_ID / ZEPTO_DEMO_CLIENT_ID).
  */
 export function demoZeptoOverride(): ZeptoTokens | null {
   const accessToken = process.env.ZEPTO_ACCESS_TOKEN ?? process.env.ZEPTO_DEMO_ACCESS_TOKEN;
   if (!accessToken) return null;
 
-  const rawExpiresAt = Number(process.env.ZEPTO_ACCESS_TOKEN_EXPIRES_AT ?? process.env.ZEPTO_DEMO_ACCESS_TOKEN_EXPIRES_AT ?? "");
-  const expiresAt = Number.isFinite(rawExpiresAt) && rawExpiresAt > Date.now() ? rawExpiresAt : Date.now() + 7 * 24 * 60 * 60 * 1000;
+  const envExpiry = Number(process.env.ZEPTO_ACCESS_TOKEN_EXPIRES_AT ?? process.env.ZEPTO_DEMO_ACCESS_TOKEN_EXPIRES_AT ?? "");
+  // Prefer the token's own exp; else the env hint; else treat as expired so a refresh is attempted.
+  const expiresAt = jwtExpiryMs(accessToken) ?? (Number.isFinite(envExpiry) && envExpiry > 0 ? envExpiry : Date.now());
 
   return {
     accessToken,
     refreshToken: process.env.ZEPTO_REFRESH_TOKEN ?? process.env.ZEPTO_DEMO_REFRESH_TOKEN,
     expiresAt,
-    clientId: process.env.ZEPTO_CLIENT_ID ?? process.env.ZEPTO_DEMO_CLIENT_ID ?? "demo-override",
+    clientId: process.env.ZEPTO_CLIENT_ID ?? process.env.ZEPTO_DEMO_CLIENT_ID ?? "",
   };
 }
 

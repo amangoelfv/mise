@@ -10,9 +10,24 @@ export interface Prefs {
   avoid: string;
   skipStaples: boolean;
   pincode: string;
+  /** Delivery details, remembered on this device for the order step. */
+  name: string;
+  phone: string;
+  address: string;
+  landmark: string;
 }
 
-export const DEFAULT_PREFS: Prefs = { servings: 2, diet: "any", avoid: "", skipStaples: true, pincode: "" };
+export const DEFAULT_PREFS: Prefs = {
+  servings: 2,
+  diet: "any",
+  avoid: "",
+  skipStaples: true,
+  pincode: "",
+  name: "",
+  phone: "",
+  address: "",
+  landmark: "",
+};
 
 const KEY = "mise:prefs:v1";
 const listeners = new Set<() => void>();
