@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Flow } from "@/components/flow/flow";
-import { cartApiMode } from "@/lib/cart-api";
 import { zeptoState } from "@/lib/connectors";
 import { CATALOG } from "@/lib/feed";
 import { getConnections, getUser } from "@/lib/session";
@@ -22,7 +21,7 @@ async function SessionFlow({ searchParams }: { searchParams: PageProps<"/app">["
       firstName={user.name.split(/\s+/)[0]}
       initialQuery={query}
       zepto={zeptoState(connections)}
-      simulatedCart={cartApiMode === "mock"}
+      simulatedCart={false}
       catalog={CATALOG}
     />
   );

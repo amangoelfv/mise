@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   if (user instanceof Response) return user;
 
   if ((await readJson(req)).action !== "simulate") return fail("Unknown action.");
-  if (cartApiMode !== "mock") return fail("Simulated connections are off when a real cart API is configured.", 403);
+  if (cartApiMode === "live") return fail("Simulated connections are off when a real cart API is configured.", 403);
 
   const connections = await getConnections(user);
   const connectedAt = new Date().toISOString();
