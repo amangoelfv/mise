@@ -75,6 +75,15 @@
     ],
     "tomato": [
       {
+        "productVariantId": "feae1642-1136-46ea-97f8-3cf821f14f17",
+        "storeProductId": "3f6511c8-f228-511d-9aae-28fd197da0ee",
+        "name": "Tomato Hybrid",
+        "price": 2600,
+        "mrp": 6100,
+        "packSize": "500 g",
+        "availableQuantity": 14
+      },
+      {
         "productVariantId": "96ceffc5-96b0-418e-ad13-143b242becd8",
         "storeProductId": "680a1d94-a955-5d72-8a57-b24f5140ca97",
         "name": "Tomato Local",
@@ -84,25 +93,13 @@
         "availableQuantity": 20
       },
       {
-        "productVariantId": "1a6a6a31-16c5-4cb6-9c7b-2d8a6642e074",
-        "storeProductId": "e5947705-728d-59c5-9d9d-c85cc0a954e5",
-        "name": "Tomato Local",
-        "price": 2800,
-        "mrp": 8000,
+        "productVariantId": "4e1a58c1-ddf3-4d8b-9a54-b0eab81abd04",
+        "storeProductId": "67e259d0-231b-5f49-9dd5-7c88e8b84859",
+        "name": "Organically Grown Tomato Hybrid",
+        "price": 4300,
+        "mrp": 10200,
         "packSize": "500 g",
-        "availableQuantity": 19,
-        "brand": "Unbranded",
-        "averageRating": null,
-        "totalRatings": null
-      },
-      {
-        "productVariantId": "5c5e2f50-e1a9-4df1-a858-68354a231cc3",
-        "storeProductId": "39a35686-4e83-5425-b3bf-66ad62d42a33",
-        "name": "Desi Farms Low Fat Paneer",
-        "price": 9200,
-        "mrp": 9600,
-        "packSize": "1 pack (200 g)",
-        "availableQuantity": 2
+        "availableQuantity": 3
       }
     ],
     "cashews": [
@@ -145,25 +142,25 @@
         "price": 5800,
         "mrp": 12500,
         "packSize": "900 g - 1 kg",
-        "availableQuantity": 20
-      },
-      {
-        "productVariantId": "5bc163e4-099a-4fa7-b6d1-db808c6a9da3",
-        "storeProductId": "96fcdd7e-2b9d-5c52-a77c-bbd520f240dd",
-        "name": "Onion Sliced",
-        "price": 3200,
-        "mrp": 6300,
-        "packSize": "200 g",
         "availableQuantity": 3
       },
       {
-        "productVariantId": "81ac330b-546a-45d6-97b1-f5dfc06739db",
-        "storeProductId": "1c5a3fa6-3d8c-51a3-a399-0f5e022dad43",
-        "name": "Potato",
-        "price": 2200,
-        "mrp": 5800,
-        "packSize": "900 g - 1 kg",
-        "availableQuantity": 20
+        "productVariantId": "b3e0fdc2-bc12-4cd8-ac15-8ee60a0332e4",
+        "storeProductId": "9f07bfa8-eeab-5f38-adfb-acd8c3c3bd76",
+        "name": "Organically Grown Onion",
+        "price": 5000,
+        "mrp": 10200,
+        "packSize": "500 g",
+        "availableQuantity": 2
+      },
+      {
+        "productVariantId": "f4f79129-2deb-4995-abdf-e316b1013570",
+        "storeProductId": "8bcd9e61-1f42-5669-a0d9-e82c9c3d29db",
+        "name": "Sambar Onion",
+        "price": 1800,
+        "mrp": 3200,
+        "packSize": "250 g",
+        "availableQuantity": 2
       }
     ],
     "fresh cream": [
@@ -205,6 +202,842 @@
         "mrp": 3600,
         "packSize": "1 pack (500 ml)",
         "availableQuantity": 10
+      }
+    ],
+    "potato": [
+      {
+        "productVariantId": "81ac330b-546a-45d6-97b1-f5dfc06739db",
+        "storeProductId": "1c5a3fa6-3d8c-51a3-a399-0f5e022dad43",
+        "name": "Potato",
+        "price": 2200,
+        "mrp": 5800,
+        "packSize": "900 g - 1 kg",
+        "availableQuantity": 20
+      },
+      {
+        "productVariantId": "2ba22e4d-bb67-478f-bcfc-5141af0ead70",
+        "storeProductId": "f663dddc-a13e-5d5c-bc64-20a838345d3f",
+        "name": "Organically Grown Potato",
+        "price": 2000,
+        "mrp": 4300,
+        "packSize": "500 g",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "8fec958a-be38-421e-b511-bf63702c260b",
+        "storeProductId": "8ea5f3a6-13cc-5adc-9e84-58bee3cf6b2b",
+        "name": "Baby Potato",
+        "price": 1300,
+        "mrp": 1900,
+        "packSize": "500 g",
+        "availableQuantity": 4
+      }
+    ],
+    "ginger garlic paste": [
+      {
+        "productVariantId": "d4a2e0d9-d683-49be-a93a-a0844980878f",
+        "storeProductId": "caf9ddf5-2e6b-580a-bc2f-98c039cbadc1",
+        "name": "Catch Ginger Garlic Paste",
+        "price": 2800,
+        "mrp": 5000,
+        "packSize": "1 pack (200 g)",
+        "availableQuantity": 1
+      },
+      {
+        "productVariantId": "739c60d2-e3b0-43ea-8440-cb65cbdcfa6d",
+        "storeProductId": "bec680e7-fe58-552c-922e-bc75e2767e81",
+        "name": "Smith & Jones Ginger Garlic Paste",
+        "price": 3600,
+        "mrp": 5000,
+        "packSize": "1 pack (200 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "43432591-4c1c-4a09-8c28-a3e565bae435",
+        "storeProductId": "54691b4d-6494-5cc8-b0a5-b7f3150dbb1d",
+        "name": "Everest Ginger Garlic Paste",
+        "price": 2100,
+        "mrp": 2300,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 6
+      }
+    ],
+    "garlic paste": [
+      {
+        "productVariantId": "d4a2e0d9-d683-49be-a93a-a0844980878f",
+        "storeProductId": "caf9ddf5-2e6b-580a-bc2f-98c039cbadc1",
+        "name": "Catch Ginger Garlic Paste",
+        "price": 2800,
+        "mrp": 5000,
+        "packSize": "1 pack (200 g)",
+        "availableQuantity": 1
+      },
+      {
+        "productVariantId": "c6bbd8af-67f0-4e75-a2f7-b380cbf2a4cf",
+        "storeProductId": "a44833c5-c6d8-53bb-a9da-c0b18203fe4d",
+        "name": "Mother's Recipe Ginger Garlic Paste",
+        "price": 3900,
+        "mrp": 4700,
+        "packSize": "1 pack (200 g)",
+        "availableQuantity": 6
+      }
+    ],
+    "green chilli": [
+      {
+        "productVariantId": "5f08615f-f0f8-4740-adf7-49faa6297467",
+        "storeProductId": "59b5afdc-d972-5a92-a897-b3c05cd678dc",
+        "name": "Chilli Green",
+        "price": 1900,
+        "mrp": 3200,
+        "packSize": "100 g",
+        "availableQuantity": 11
+      },
+      {
+        "productVariantId": "25978ae4-f697-42d8-9864-a469fc80db9c",
+        "storeProductId": "6a50cd50-0984-540b-b2dd-ad6f8face484",
+        "name": "Organically Grown Chilli Green",
+        "price": 2500,
+        "mrp": 4100,
+        "packSize": "100 g",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "a5d04670-2116-46c5-81e0-2152c4e5ea4c",
+        "storeProductId": "9a0d701b-feac-5e0b-ae93-4f189edccdef",
+        "name": "Bloom Chilli Green",
+        "price": 1900,
+        "mrp": 4500,
+        "packSize": "100 g",
+        "availableQuantity": 5
+      }
+    ],
+    "lemon": [
+      {
+        "productVariantId": "0cc2ba2e-35a9-42c0-b7c1-e886de3e3601",
+        "storeProductId": "90da9460-331d-5126-995e-44639359f7a1",
+        "name": "Lemon",
+        "price": 5400,
+        "mrp": 13900,
+        "packSize": "250 g",
+        "availableQuantity": 7
+      },
+      {
+        "productVariantId": "1d5cec35-1d9c-4860-8934-09096bcc18e9",
+        "storeProductId": "4252c068-1731-5658-a822-eae8322ec036",
+        "name": "Organically Grown Lemon",
+        "price": 5900,
+        "mrp": 11000,
+        "packSize": "200 g",
+        "availableQuantity": 1
+      }
+    ],
+    "ginger": [
+      {
+        "productVariantId": "1a315afe-eb56-49cd-a23b-fc0965f32385",
+        "storeProductId": "8cd3b531-7522-5704-8da0-25bee61c6172",
+        "name": "Ginger (New)",
+        "price": 3200,
+        "mrp": 4800,
+        "packSize": "200 g",
+        "availableQuantity": 10
+      }
+    ],
+    "garlic": [
+      {
+        "productVariantId": "702fef32-a7fb-4436-96d0-5d2194bc1013",
+        "storeProductId": "95b22ebf-757b-56d9-bdbc-a04c39415aa5",
+        "name": "Garlic Clove",
+        "price": 2100,
+        "mrp": 5200,
+        "packSize": "100 g",
+        "availableQuantity": 1
+      },
+      {
+        "productVariantId": "3374b33e-66c3-4be6-b565-76314040c9cc",
+        "storeProductId": "af944039-7a16-5d7d-b732-6e21b89f769e",
+        "name": "Garlic Kullu",
+        "price": 3300,
+        "mrp": 8600,
+        "packSize": "100 g",
+        "availableQuantity": 6
+      }
+    ],
+    "curry leaves": [
+      {
+        "productVariantId": "c944bd04-7927-4fcd-bc97-5ac8b43df138",
+        "storeProductId": "1714e599-5905-52dc-af70-a679a91539b3",
+        "name": "Curry Leaves",
+        "price": 1700,
+        "mrp": 2700,
+        "packSize": "50 - 60 g",
+        "availableQuantity": 6
+      },
+      {
+        "productVariantId": "8b83ecea-963e-491d-93e2-20673921fea7",
+        "storeProductId": "86e70499-6b0c-5e32-bc2b-d53aa5ec07e0",
+        "name": "Bloom Curry Leaves",
+        "price": 4400,
+        "mrp": 4700,
+        "packSize": "50 g",
+        "availableQuantity": 2
+      }
+    ],
+    "ghee": [
+      {
+        "productVariantId": "d89566ed-0fd8-4a06-8b20-987c6c6a0e98",
+        "storeProductId": "cf3f0361-c307-423d-901f-8a835e43bdd2",
+        "name": "Milkfood Rich Desi Ghee",
+        "price": 29500,
+        "mrp": 33800,
+        "packSize": "1 pack (450 ml)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "1732bad9-cdcd-4e27-8c85-32397b642d45",
+        "storeProductId": "9c48e4f2-b88d-49f1-8753-e236891fc16d",
+        "name": "Mother Dairy Buffalo Ghee",
+        "price": 62700,
+        "mrp": 71500,
+        "packSize": "1 pack (1 L)",
+        "availableQuantity": 2
+      }
+    ],
+    "cumin seeds": [
+      {
+        "productVariantId": "3887cc6b-a6b6-450b-9203-0cfac845ceb1",
+        "storeProductId": "7e10d105-ebf3-5532-85da-e8aab72d43be",
+        "name": "Tata Sampann Cumin Seed (Jeera)",
+        "price": 5600,
+        "mrp": 6500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "cd9df207-987d-4611-a9d0-e2a4a6ea26a0",
+        "storeProductId": "28c80cf4-d51e-58bf-bad5-6462ea3b05b6",
+        "name": "TMI COLMAN Jeera Sabut",
+        "price": 5600,
+        "mrp": 6000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 15
+      },
+      {
+        "productVariantId": "305a917c-8d23-41e8-928a-513e06cf2e55",
+        "storeProductId": "a3d8006d-791b-5654-a851-3ad648c6b38d",
+        "name": "Badshah Jeera Whole",
+        "price": 4600,
+        "mrp": 7000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 1
+      }
+    ],
+    "mustard seeds": [
+      {
+        "productVariantId": "57d565cb-cb9d-4648-bfaa-0618706672ec",
+        "storeProductId": "3d499916-4f0d-5cc7-bda2-c30b2dd3f80d",
+        "name": "Daily Good Mustard / Rai Small",
+        "price": 2100,
+        "mrp": 4000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "cf82caec-9681-4e89-aaa4-9717dc2314b5",
+        "storeProductId": "fd0139e3-6173-57c1-a77c-5e26e6c6d80f",
+        "name": "Catch Black Big Mustard Seeds",
+        "price": 3200,
+        "mrp": 3500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 6
+      },
+      {
+        "productVariantId": "0bd3995f-d3ac-4646-b4df-2b1d6ad1cbe8",
+        "storeProductId": "d7031052-06ef-5a0f-9e6f-2e5db53dc786",
+        "name": "Nutraj Classic Moti Rai",
+        "price": 2200,
+        "mrp": 3000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 3
+      }
+    ],
+    "garam masala": [
+      {
+        "productVariantId": "dca194f1-f2da-41ac-a096-996074411f71",
+        "storeProductId": "b0caf43f-f338-4382-9824-67712f159f8d",
+        "name": "Catch Super Garam Masala",
+        "price": 4100,
+        "mrp": 5500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 3
+      },
+      {
+        "productVariantId": "f307408d-c167-4a43-b5b9-83d4a4cb2813",
+        "storeProductId": "139f9b40-0e6d-51f0-867a-abff2589b122",
+        "name": "Tata Sampann Garam Masala Powder",
+        "price": 9100,
+        "mrp": 10500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 5
+      },
+      {
+        "productVariantId": "b9071dd2-9939-4f35-aaf2-9f455d09f869",
+        "storeProductId": "dc5bcd83-1908-5c5b-a495-3df2ad706ffe",
+        "name": "MDH Garam Masala",
+        "price": 10900,
+        "mrp": 11500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 2
+      }
+    ],
+    "turmeric powder": [
+      {
+        "productVariantId": "6e806cbf-5507-4dad-ac97-a0cfe3b13d01",
+        "storeProductId": "e47f6c0e-169a-59f1-99d8-e9d86a040aba",
+        "name": "Catch Turmeric Powder/Haldi",
+        "price": 3200,
+        "mrp": 4200,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "bd960e2d-f8db-4ebc-97f6-058e2310de4d",
+        "storeProductId": "77ac15c8-501f-5a21-9259-770641fdb742",
+        "name": "Tata Sampann Turmeric Powder",
+        "price": 4300,
+        "mrp": 5000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 6
+      },
+      {
+        "productVariantId": "be8a521e-b38b-4cd3-8450-2ed6158d3f70",
+        "storeProductId": "d3fa1bc4-28b8-40fc-9848-2005478e3a5e",
+        "name": "Aashirvaad Turmeric Powder",
+        "price": 2700,
+        "mrp": 5000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 3
+      }
+    ],
+    "thick poha": [
+      {
+        "productVariantId": "a105647b-b679-4f9c-a5e8-daba13a2b856",
+        "storeProductId": "42ed4ef8-3af3-5cb2-a366-e7dbb93177fd",
+        "name": "Fortune Poha | Thick",
+        "price": 5700,
+        "mrp": 7500,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "5db8cfac-cdf9-4b4e-bc89-1062e30abc6e",
+        "storeProductId": "848ebf48-f459-5e14-a9a1-fb36190489e2",
+        "name": "Tata Sampann, High in Fibre Premium Poha",
+        "price": 11100,
+        "mrp": 15900,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 3
+      },
+      {
+        "productVariantId": "f4ba037c-fcf6-47a7-82ad-35be2fd0a117",
+        "storeProductId": "9d8146cb-b4f0-55de-b21e-b1f2bf0a750f",
+        "name": "Rajdhani Thick Poha",
+        "price": 5900,
+        "mrp": 8000,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 15
+      }
+    ],
+    "basmati rice": [
+      {
+        "productVariantId": "18e5789f-aab8-4281-8db4-380bb50a1c29",
+        "storeProductId": "1c502806-88eb-5cf3-a317-0293d79a22cd",
+        "name": "Fortune Rozana Gold Basmati Rice",
+        "price": 9700,
+        "mrp": 12000,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 14
+      },
+      {
+        "productVariantId": "392eccaa-a314-4ef2-a681-f6be6b193681",
+        "storeProductId": "69e2170e-eba9-57db-817a-fe2d5f20d7d7",
+        "name": "India Gate Everyday Basmati Rice",
+        "price": 8900,
+        "mrp": 10700,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 5
+      },
+      {
+        "productVariantId": "2cebc141-7a38-4503-9842-92d933cd375f",
+        "storeProductId": "6407e380-330a-5f7d-8cb0-2f1fe52416fb",
+        "name": "921 Rozana Basmati Rice",
+        "price": 7500,
+        "mrp": 12500,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 7
+      }
+    ],
+    "toor dal": [
+      {
+        "productVariantId": "b112aa30-e6ab-4f7c-9326-16c1733a057a",
+        "storeProductId": "7531623b-cc97-5909-9936-194e2e7d04aa",
+        "name": "Tata Sampann Unpolished Toor Dal | Arhar Dal",
+        "price": 9600,
+        "mrp": 11800,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 7
+      },
+      {
+        "productVariantId": "b9efcc09-b64b-4b6c-afd7-a14fdb63622f",
+        "storeProductId": "27e9dd43-1802-519d-9f00-fe3dc3f2c8bf",
+        "name": "FarMart Pantry Toor Dal/Arhar Dal",
+        "price": 8900,
+        "mrp": 14000,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "d5dfb236-f3de-4bf6-b18d-a7ee75a7ed66",
+        "storeProductId": "cf21ce04-1964-511b-ae69-a0b1eb52ffa0",
+        "name": "BestValue Toor Dal",
+        "price": 13900,
+        "mrp": 20000,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 3
+      }
+    ],
+    "chickpeas": [
+      {
+        "productVariantId": "88b07c97-61d7-406e-9f14-c2bdb148f29d",
+        "storeProductId": "5e5d0d63-de44-5c2b-9586-50ebb56f1d84",
+        "name": "Tata Sampann Unpolished Kabuli Chana",
+        "price": 7900,
+        "mrp": 8900,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 1
+      },
+      {
+        "productVariantId": "1cde33eb-42d2-4355-b592-a9f420f3e6bc",
+        "storeProductId": "61643ef2-28e3-50f1-a1ec-acf4db4357c5",
+        "name": "BestValue Kabuli Chana",
+        "price": 4800,
+        "mrp": 10000,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "44fd38fd-c59f-44b7-aac3-701c0a12dada",
+        "storeProductId": "66b2af8b-761f-54b2-903c-14ea9d9b424b",
+        "name": "Rajdhani Unpolished Kabuli Chana",
+        "price": 13500,
+        "mrp": 17000,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 10
+      }
+    ],
+    "atta": [
+      {
+        "productVariantId": "14a11cfe-fd72-4901-bf2e-22bc0aba21c0",
+        "storeProductId": "c87cf439-3ea4-5f65-9809-9086a637a68c",
+        "name": "Fortune Chakki Fresh Atta",
+        "price": 22400,
+        "mrp": 25300,
+        "packSize": "1 pack (5 kg)",
+        "availableQuantity": 15
+      },
+      {
+        "productVariantId": "f3f0adaf-3c4c-44cc-b731-8cee226e2c0b",
+        "storeProductId": "20b25abf-e4db-5e29-9a9b-46a34f1618a4",
+        "name": "Rajdhani Chakki Fresh Atta",
+        "price": 21900,
+        "mrp": 31500,
+        "packSize": "1 pack (5 kg)",
+        "availableQuantity": 7
+      },
+      {
+        "productVariantId": "08aa72b7-cac2-4cbb-84d9-525c812f19fa",
+        "storeProductId": "ff9d7cb5-280e-5493-a9cd-96433d42f2fa",
+        "name": "Aashirvaad Shudh Chakki Atta",
+        "price": 45600,
+        "mrp": 49900,
+        "packSize": "1 pack (10 kg)",
+        "availableQuantity": 12
+      }
+    ],
+    "poha": [
+      {
+        "productVariantId": "a105647b-b679-4f9c-a5e8-daba13a2b856",
+        "storeProductId": "42ed4ef8-3af3-5cb2-a366-e7dbb93177fd",
+        "name": "Fortune Poha | Thick",
+        "price": 5700,
+        "mrp": 7500,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "5db8cfac-cdf9-4b4e-bc89-1062e30abc6e",
+        "storeProductId": "848ebf48-f459-5e14-a9a1-fb36190489e2",
+        "name": "Tata Sampann, High in Fibre Premium Poha",
+        "price": 11100,
+        "mrp": 15900,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 3
+      },
+      {
+        "productVariantId": "f4ba037c-fcf6-47a7-82ad-35be2fd0a117",
+        "storeProductId": "9d8146cb-b4f0-55de-b21e-b1f2bf0a750f",
+        "name": "Rajdhani Thick Poha",
+        "price": 5900,
+        "mrp": 8000,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 15
+      }
+    ],
+    "wheat flour": [
+      {
+        "productVariantId": "14a11cfe-fd72-4901-bf2e-22bc0aba21c0",
+        "storeProductId": "c87cf439-3ea4-5f65-9809-9086a637a68c",
+        "name": "Fortune Chakki Fresh Atta",
+        "price": 22400,
+        "mrp": 25300,
+        "packSize": "1 pack (5 kg)",
+        "availableQuantity": 15
+      },
+      {
+        "productVariantId": "f3f0adaf-3c4c-44cc-b731-8cee226e2c0b",
+        "storeProductId": "20b25abf-e4db-5e29-9a9b-46a34f1618a4",
+        "name": "Rajdhani Chakki Fresh Atta",
+        "price": 21900,
+        "mrp": 31500,
+        "packSize": "1 pack (5 kg)",
+        "availableQuantity": 7
+      },
+      {
+        "productVariantId": "08aa72b7-cac2-4cbb-84d9-525c812f19fa",
+        "storeProductId": "ff9d7cb5-280e-5493-a9cd-96433d42f2fa",
+        "name": "Aashirvaad Shudh Chakki Atta",
+        "price": 45600,
+        "mrp": 49900,
+        "packSize": "1 pack (10 kg)",
+        "availableQuantity": 12
+      }
+    ],
+    "whole wheat flour": [
+      {
+        "productVariantId": "14a11cfe-fd72-4901-bf2e-22bc0aba21c0",
+        "storeProductId": "c87cf439-3ea4-5f65-9809-9086a637a68c",
+        "name": "Fortune Chakki Fresh Atta",
+        "price": 22400,
+        "mrp": 25300,
+        "packSize": "1 pack (5 kg)",
+        "availableQuantity": 15
+      },
+      {
+        "productVariantId": "f3f0adaf-3c4c-44cc-b731-8cee226e2c0b",
+        "storeProductId": "20b25abf-e4db-5e29-9a9b-46a34f1618a4",
+        "name": "Rajdhani Chakki Fresh Atta",
+        "price": 21900,
+        "mrp": 31500,
+        "packSize": "1 pack (5 kg)",
+        "availableQuantity": 7
+      },
+      {
+        "productVariantId": "08aa72b7-cac2-4cbb-84d9-525c812f19fa",
+        "storeProductId": "ff9d7cb5-280e-5493-a9cd-96433d42f2fa",
+        "name": "Aashirvaad Shudh Chakki Atta",
+        "price": 45600,
+        "mrp": 49900,
+        "packSize": "1 pack (10 kg)",
+        "availableQuantity": 12
+      }
+    ],
+    "green chillies": [
+      {
+        "productVariantId": "5f08615f-f0f8-4740-adf7-49faa6297467",
+        "storeProductId": "59b5afdc-d972-5a92-a897-b3c05cd678dc",
+        "name": "Chilli Green",
+        "price": 1900,
+        "mrp": 3200,
+        "packSize": "100 g",
+        "availableQuantity": 11
+      },
+      {
+        "productVariantId": "25978ae4-f697-42d8-9864-a469fc80db9c",
+        "storeProductId": "6a50cd50-0984-540b-b2dd-ad6f8face484",
+        "name": "Organically Grown Chilli Green",
+        "price": 2500,
+        "mrp": 4100,
+        "packSize": "100 g",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "a5d04670-2116-46c5-81e0-2152c4e5ea4c",
+        "storeProductId": "9a0d701b-feac-5e0b-ae93-4f189edccdef",
+        "name": "Bloom Chilli Green",
+        "price": 1900,
+        "mrp": 4500,
+        "packSize": "100 g",
+        "availableQuantity": 5
+      }
+    ],
+    "green chilly": [
+      {
+        "productVariantId": "5f08615f-f0f8-4740-adf7-49faa6297467",
+        "storeProductId": "59b5afdc-d972-5a92-a897-b3c05cd678dc",
+        "name": "Chilli Green",
+        "price": 1900,
+        "mrp": 3200,
+        "packSize": "100 g",
+        "availableQuantity": 11
+      },
+      {
+        "productVariantId": "25978ae4-f697-42d8-9864-a469fc80db9c",
+        "storeProductId": "6a50cd50-0984-540b-b2dd-ad6f8face484",
+        "name": "Organically Grown Chilli Green",
+        "price": 2500,
+        "mrp": 4100,
+        "packSize": "100 g",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "a5d04670-2116-46c5-81e0-2152c4e5ea4c",
+        "storeProductId": "9a0d701b-feac-5e0b-ae93-4f189edccdef",
+        "name": "Bloom Chilli Green",
+        "price": 1900,
+        "mrp": 4500,
+        "packSize": "100 g",
+        "availableQuantity": 5
+      }
+    ],
+    "kabuli chana": [
+      {
+        "productVariantId": "88b07c97-61d7-406e-9f14-c2bdb148f29d",
+        "storeProductId": "5e5d0d63-de44-5c2b-9586-50ebb56f1d84",
+        "name": "Tata Sampann Unpolished Kabuli Chana",
+        "price": 7900,
+        "mrp": 8900,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 1
+      },
+      {
+        "productVariantId": "1cde33eb-42d2-4355-b592-a9f420f3e6bc",
+        "storeProductId": "61643ef2-28e3-50f1-a1ec-acf4db4357c5",
+        "name": "BestValue Kabuli Chana",
+        "price": 4800,
+        "mrp": 10000,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "44fd38fd-c59f-44b7-aac3-701c0a12dada",
+        "storeProductId": "66b2af8b-761f-54b2-903c-14ea9d9b424b",
+        "name": "Rajdhani Unpolished Kabuli Chana",
+        "price": 13500,
+        "mrp": 17000,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 10
+      }
+    ],
+    "chickpea": [
+      {
+        "productVariantId": "88b07c97-61d7-406e-9f14-c2bdb148f29d",
+        "storeProductId": "5e5d0d63-de44-5c2b-9586-50ebb56f1d84",
+        "name": "Tata Sampann Unpolished Kabuli Chana",
+        "price": 7900,
+        "mrp": 8900,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 1
+      },
+      {
+        "productVariantId": "1cde33eb-42d2-4355-b592-a9f420f3e6bc",
+        "storeProductId": "61643ef2-28e3-50f1-a1ec-acf4db4357c5",
+        "name": "BestValue Kabuli Chana",
+        "price": 4800,
+        "mrp": 10000,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "44fd38fd-c59f-44b7-aac3-701c0a12dada",
+        "storeProductId": "66b2af8b-761f-54b2-903c-14ea9d9b424b",
+        "name": "Rajdhani Unpolished Kabuli Chana",
+        "price": 13500,
+        "mrp": 17000,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 10
+      }
+    ],
+    "arhar dal": [
+      {
+        "productVariantId": "b112aa30-e6ab-4f7c-9326-16c1733a057a",
+        "storeProductId": "7531623b-cc97-5909-9936-194e2e7d04aa",
+        "name": "Tata Sampann Unpolished Toor Dal | Arhar Dal",
+        "price": 9600,
+        "mrp": 11800,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 7
+      },
+      {
+        "productVariantId": "b9efcc09-b64b-4b6c-afd7-a14fdb63622f",
+        "storeProductId": "27e9dd43-1802-519d-9f00-fe3dc3f2c8bf",
+        "name": "FarMart Pantry Toor Dal/Arhar Dal",
+        "price": 8900,
+        "mrp": 14000,
+        "packSize": "1 pack (500 g)",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "d5dfb236-f3de-4bf6-b18d-a7ee75a7ed66",
+        "storeProductId": "cf21ce04-1964-511b-ae69-a0b1eb52ffa0",
+        "name": "BestValue Toor Dal",
+        "price": 13900,
+        "mrp": 20000,
+        "packSize": "1 pack (1 kg)",
+        "availableQuantity": 3
+      }
+    ],
+    "jeera": [
+      {
+        "productVariantId": "3887cc6b-a6b6-450b-9203-0cfac845ceb1",
+        "storeProductId": "7e10d105-ebf3-5532-85da-e8aab72d43be",
+        "name": "Tata Sampann Cumin Seed (Jeera)",
+        "price": 5600,
+        "mrp": 6500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "cd9df207-987d-4611-a9d0-e2a4a6ea26a0",
+        "storeProductId": "28c80cf4-d51e-58bf-bad5-6462ea3b05b6",
+        "name": "TMI COLMAN Jeera Sabut",
+        "price": 5600,
+        "mrp": 6000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 15
+      },
+      {
+        "productVariantId": "305a917c-8d23-41e8-928a-513e06cf2e55",
+        "storeProductId": "a3d8006d-791b-5654-a851-3ad648c6b38d",
+        "name": "Badshah Jeera Whole",
+        "price": 4600,
+        "mrp": 7000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 1
+      }
+    ],
+    "cumin": [
+      {
+        "productVariantId": "3887cc6b-a6b6-450b-9203-0cfac845ceb1",
+        "storeProductId": "7e10d105-ebf3-5532-85da-e8aab72d43be",
+        "name": "Tata Sampann Cumin Seed (Jeera)",
+        "price": 5600,
+        "mrp": 6500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "cd9df207-987d-4611-a9d0-e2a4a6ea26a0",
+        "storeProductId": "28c80cf4-d51e-58bf-bad5-6462ea3b05b6",
+        "name": "TMI COLMAN Jeera Sabut",
+        "price": 5600,
+        "mrp": 6000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 15
+      },
+      {
+        "productVariantId": "305a917c-8d23-41e8-928a-513e06cf2e55",
+        "storeProductId": "a3d8006d-791b-5654-a851-3ad648c6b38d",
+        "name": "Badshah Jeera Whole",
+        "price": 4600,
+        "mrp": 7000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 1
+      }
+    ],
+    "mustard seed": [
+      {
+        "productVariantId": "57d565cb-cb9d-4648-bfaa-0618706672ec",
+        "storeProductId": "3d499916-4f0d-5cc7-bda2-c30b2dd3f80d",
+        "name": "Daily Good Mustard / Rai Small",
+        "price": 2100,
+        "mrp": 4000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 4
+      },
+      {
+        "productVariantId": "cf82caec-9681-4e89-aaa4-9717dc2314b5",
+        "storeProductId": "fd0139e3-6173-57c1-a77c-5e26e6c6d80f",
+        "name": "Catch Black Big Mustard Seeds",
+        "price": 3200,
+        "mrp": 3500,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 6
+      },
+      {
+        "productVariantId": "0bd3995f-d3ac-4646-b4df-2b1d6ad1cbe8",
+        "storeProductId": "d7031052-06ef-5a0f-9e6f-2e5db53dc786",
+        "name": "Nutraj Classic Moti Rai",
+        "price": 2200,
+        "mrp": 3000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 3
+      }
+    ],
+    "turmeric": [
+      {
+        "productVariantId": "6e806cbf-5507-4dad-ac97-a0cfe3b13d01",
+        "storeProductId": "e47f6c0e-169a-59f1-99d8-e9d86a040aba",
+        "name": "Catch Turmeric Powder/Haldi",
+        "price": 3200,
+        "mrp": 4200,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "bd960e2d-f8db-4ebc-97f6-058e2310de4d",
+        "storeProductId": "77ac15c8-501f-5a21-9259-770641fdb742",
+        "name": "Tata Sampann Turmeric Powder",
+        "price": 4300,
+        "mrp": 5000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 6
+      },
+      {
+        "productVariantId": "be8a521e-b38b-4cd3-8450-2ed6158d3f70",
+        "storeProductId": "d3fa1bc4-28b8-40fc-9848-2005478e3a5e",
+        "name": "Aashirvaad Turmeric Powder",
+        "price": 2700,
+        "mrp": 5000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 3
+      }
+    ],
+    "haldi": [
+      {
+        "productVariantId": "6e806cbf-5507-4dad-ac97-a0cfe3b13d01",
+        "storeProductId": "e47f6c0e-169a-59f1-99d8-e9d86a040aba",
+        "name": "Catch Turmeric Powder/Haldi",
+        "price": 3200,
+        "mrp": 4200,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 8
+      },
+      {
+        "productVariantId": "bd960e2d-f8db-4ebc-97f6-058e2310de4d",
+        "storeProductId": "77ac15c8-501f-5a21-9259-770641fdb742",
+        "name": "Tata Sampann Turmeric Powder",
+        "price": 4300,
+        "mrp": 5000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 6
+      },
+      {
+        "productVariantId": "be8a521e-b38b-4cd3-8450-2ed6158d3f70",
+        "storeProductId": "d3fa1bc4-28b8-40fc-9848-2005478e3a5e",
+        "name": "Aashirvaad Turmeric Powder",
+        "price": 2700,
+        "mrp": 5000,
+        "packSize": "1 pack (100 g)",
+        "availableQuantity": 3
       }
     ]
   },
