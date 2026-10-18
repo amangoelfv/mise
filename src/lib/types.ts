@@ -60,6 +60,7 @@ export interface CartBody {
   items: CartItem[];
   diet: Diet;
   avoid: string[];
+  budget: BudgetPreference;
   pincode?: string;
   dryRun?: boolean;
 }

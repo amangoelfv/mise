@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { BudgetPreference, Diet } from "@/lib/contract";
 import { HEIGHT_CM, WEIGHT_KG, mealProteinShareG, proteinTargetG, type AgeBand } from "@/lib/nutrition";
 import { AGE_BAND_OPTIONS, BUDGET_OPTIONS, DIET_OPTIONS } from "@/lib/options";
@@ -46,8 +46,21 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
   const weightKg = parseInRange(weight, WEIGHT_KG);
   const target = proteinTargetG(ageBand, weightKg);
 
-  function save() {
-    updatePrefs({
+  /**
+   * Closing a native <dialog> programmatically also fires its close event, so onDone's own
+   * state change echoes back here as a second call. First outcome wins; the echo is dropped.
+   * Without this, Continue would be overwritten by "skipped" and the flow would fetch twice.
+   */
+  const resolved = useRef(false);
+  function finish(patch: Parameters<typeof updatePrefs>[0]) {
+    if (resolved.current) return;
+    resolved.current = true;
+    updatePrefs(patch);
+    onDone();
+  }
+
+  const save = () =>
+    finish({
       ageBand,
       weightKg,
       heightCm: parseInRange(height, HEIGHT_CM),
@@ -56,13 +69,8 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
       budget,
       profileStatus: "saved",
     });
-    onDone();
-  }
 
-  function skip() {
-    updatePrefs({ profileStatus: "skipped" });
-    onDone();
-  }
+  const skip = () => finish({ profileStatus: "skipped" });
 
   return (
     <Dialog open={open} onClose={skip} title="Cook it your way" focusFirstField={false}>
