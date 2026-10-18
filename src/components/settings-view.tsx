@@ -5,7 +5,7 @@ import { useState, type ReactNode } from "react";
 import { api, errorMessage } from "@/lib/client";
 import type { Diet } from "@/lib/contract";
 import type { ZeptoState } from "@/lib/types";
-import { updatePrefs, usePrefs } from "@/lib/prefs";
+import { setPrefsUser, updatePrefs, usePrefs } from "@/lib/prefs";
 import { Dialog } from "./dialog";
 import { ArrowRight, Logout, Minus, Plus } from "./icons";
 import { StoreMark, ZeptoConnect } from "./zepto-connect";
@@ -49,10 +49,13 @@ export function SettingsView({
   zepto: initialZepto,
   system,
 }: {
-  user: { name: string; email: string; picture?: string; demo: boolean };
+  user: { id: string; name: string; email: string; picture?: string; demo: boolean };
   zepto: ZeptoState;
   system: { gemini: boolean; cartApi: "live" | "mock" };
 }) {
+  // Before usePrefs(), so the first snapshot is this account's record.
+  setPrefsUser(user.id);
+
   const router = useRouter();
   const prefs = usePrefs();
   const [zepto, setZepto] = useState(initialZepto);
