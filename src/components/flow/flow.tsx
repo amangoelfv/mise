@@ -320,7 +320,16 @@ export function Flow({
   }
 
   function removeLine(key: string) {
-    setCartEdits((prev) => ({ ...prev, removed: new Set(prev.removed).add(key) }));
+    setCartEdits((prev) => {
+      // Removing an item the user added back just un-adds it → it returns to "already in your kitchen"
+      // (rather than vanishing from both the cart and the add-back list).
+      if (prev.added.has(key)) {
+        const added = new Set(prev.added);
+        added.delete(key);
+        return { ...prev, added };
+      }
+      return { ...prev, removed: new Set(prev.removed).add(key) };
+    });
   }
   function addBackLine(key: string) {
     // Un-remove if it was removed, and mark it added so effectiveCart includes the skipped item's line.
@@ -332,7 +341,10 @@ export function Flow({
   }
   function changeQty(key: string, delta: number) {
     if (!cart || (cart.phase !== "ready" && cart.phase !== "placing")) return;
-    const line = cart.status.lines.find((l) => `${l.ingredientId}-${l.productId}` === key);
+    // Look in the cart lines and in added-back "already have" items (their line lives in status.skipped).
+    const line =
+      cart.status.lines.find((l) => `${l.ingredientId}-${l.productId}` === key) ??
+      cart.status.skipped?.find((s) => s.line && `${s.line.ingredientId}-${s.line.productId}` === key)?.line;
     if (!line) return;
     const current = cartEdits.qty[key] ?? line.quantity;
     const next = Math.max(1, Math.min(99, current + delta));

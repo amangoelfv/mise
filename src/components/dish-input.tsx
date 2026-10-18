@@ -47,7 +47,7 @@ export function DishInput({
     ...matches.map((dish) => ({ key: dish.id, label: dish.name, dish })),
     ...(typed.length >= 2 && !exact ? [{ key: "__typed", label: typed }] : []),
   ];
-  const showList = open && !busy && matches.length > 0;
+  const showList = open && !busy && options.length > 0;
 
   function pick(label: string) {
     setOpen(false);
@@ -89,7 +89,7 @@ export function DishInput({
           onBlur={() => setOpen(false)}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-              if (!matches.length) return;
+              if (!options.length) return;
               e.preventDefault();
               setOpen(true);
               setActive((i) => {

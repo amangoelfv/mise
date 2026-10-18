@@ -242,7 +242,7 @@ export function CartView({
                 {savedFromKitchen > 0 && <span className="normal-case tracking-normal">saved you ~{inr(savedFromKitchen)}</span>}
               </p>
               <p className="mb-3 text-[12.5px] leading-relaxed text-paper/55">
-                We checked your recent Zepto orders — you likely still have these, so we left them out so you don&apos;t re-buy. Need one anyway? Add it.
+                Based on recent orders on your connected Zepto, you likely still have these — so we left them out to avoid re-buying. Need one anyway? Add it.
               </p>
               <ul className="space-y-1">
                 {stillSkipped.map((s) => (
