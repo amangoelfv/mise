@@ -69,7 +69,16 @@ export async function cartConnector(user: SessionUser): Promise<CartConnector | 
 
   if (zepto) {
     if (zepto.via === "simulated") {
-      console.info("[zepto] connector: signed-in user's SIMULATED connection");
+      // A simulated connection is only a stand-in for when no real account exists. If the
+      // hosted shared account (env override) is configured, prefer it so the demo runs on
+      // LIVE Zepto — otherwise a leftover "simulated" cookie would silently force the golden
+      // cache and never touch the real token.
+      const shared = await envOverrideConnector();
+      if (shared) {
+        console.info("[zepto] connector: simulated cookie present, but shared env account is configured — using live");
+        return shared;
+      }
+      console.info("[zepto] connector: signed-in user's SIMULATED connection (no shared account configured)");
       return { provider: "zepto", transport: "simulated", connectionId: zepto.connectionId };
     }
 
