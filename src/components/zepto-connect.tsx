@@ -95,8 +95,8 @@ export function ZeptoConnect({
       </div>
 
       <p className="text-[14.5px] leading-relaxed text-paper/65">
-        You sign in on Zepto&apos;s own page with your phone number and OTP. Mise can then search Zepto and fill your
-        cart. You still check out and pay in Zepto.
+        Signs in the single Zepto account Mise builds carts on (phone + OTP). Mise can search Zepto and fill that cart;
+        it can&apos;t place orders, so the operator does the final checkout in Zepto.
       </p>
 
       <dl className="mt-5 space-y-1.5 rounded-[12px] border border-line px-4 py-3 font-mono text-[12px]">

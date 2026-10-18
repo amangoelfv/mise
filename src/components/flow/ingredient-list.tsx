@@ -196,7 +196,7 @@ export function IngredientList({
                   {chosen.length} items <span className="font-normal text-paper/45">· est. {inr(estimate)}</span>
                 </p>
                 <p className="truncate font-mono text-[11px] text-paper/40">
-                  {zepto.connected ? "Ready to build on Zepto" : "Connecting to Zepto…"}
+                  {zepto.connected ? "Ready to build on Zepto" : "You'll connect Zepto next"}
                 </p>
               </div>
               <button type="button" onClick={onBuild} disabled={!chosen.length} className="btn-accent h-11">

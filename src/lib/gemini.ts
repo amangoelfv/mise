@@ -7,8 +7,8 @@ import { ingredientsPrompt, productSelectionPrompt, variantsPrompt } from "./pro
 import { DISH_STYLES } from "./styles";
 import type { IngredientsInput, IngredientsOk, VariantsInput, VariantsResult } from "./types";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-const FAST_MODEL = process.env.GEMINI_FAST_MODEL || "gemini-3.5-flash-lite";
+const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const FAST_MODEL = process.env.GEMINI_FAST_MODEL || "gemini-2.5-flash-lite";
 
 const apiKey = process.env.GEMINI_API_KEY;
 // On Google Cloud, GOOGLE_GENAI_USE_VERTEXAI=true + GOOGLE_CLOUD_PROJECT uses the service account instead of a key.
