@@ -290,8 +290,24 @@ export function CartView({
         </dl>
       </div>
 
+      {/* Store choice: Zepto today, others coming soon — intent clear, nothing dumped. */}
+      <div className="mt-7 text-center">
+        <p className="label mb-2 text-paper/40">Delivering via</p>
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span className="tag border-herb/30 text-herb">
+            <span className="size-1.5 rounded-full bg-herb" /> Zepto
+          </span>
+          {["Blinkit", "Swiggy Instamart", "BigBasket"].map((name) => (
+            <span key={name} className="tag opacity-45" title="Coming soon">
+              {name} · soon
+            </span>
+          ))}
+        </div>
+        <p className="mt-2 font-mono text-[11px] text-paper/35">On our Zepto for now · connect your own account — coming soon</p>
+      </div>
+
       {/* Primary action: we place it and deliver to the user's address. */}
-      <div className="mt-8 flex flex-col items-center gap-3">
+      <div className="mt-6 flex flex-col items-center gap-3">
         <button
           type="button"
           onClick={onPlaceOrder}

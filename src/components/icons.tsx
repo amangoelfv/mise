@@ -43,6 +43,13 @@ export const Copy = make(
 export const Code = make(<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14" />, "Code");
 export const Refresh = make(<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4" />, "Refresh");
 export const Logout = make(<path d="M14.5 4.5h5v15h-5M10 8l-4 4 4 4M6 12h10" />, "Logout");
+export const Calendar = make(
+  <>
+    <path d="M4 7h16v13H4zM4 11h16" />
+    <path d="M8 3v4M16 3v4" />
+  </>,
+  "Calendar",
+);
 export const Sliders = make(
   <>
     <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />

@@ -7,6 +7,7 @@ import type { CartStatus } from "@/lib/contract";
 import { proteinTargetG } from "@/lib/nutrition";
 import { avoidList, getPrefs, setPrefsUser } from "@/lib/prefs";
 import { styleById } from "@/lib/styles";
+import { addToWishlist, setWishlistUser } from "@/lib/wishlist";
 import type { CartBody, DishVariant, IngredientsOk, VariantsOk, VariantsResult, ZeptoState } from "@/lib/types";
 import { Dialog } from "../dialog";
 import { DishInput } from "../dish-input";
@@ -54,8 +55,9 @@ export function Flow({
   simulatedCart: boolean;
   catalog: CatalogDish[];
 }) {
-  // Before any getPrefs() call below, so prefs resolve against this account's record.
+  // Before any getPrefs()/addToWishlist() call below, so they resolve against this account's record.
   setPrefsUser(userId);
+  setWishlistUser(userId);
 
   const [stage, setStage] = useState<Stage>(initialQuery ? "styles" : "ask");
   const [query, setQuery] = useState(initialQuery);
@@ -74,6 +76,7 @@ export function Flow({
   const [placeError, setPlaceError] = useState<string | null>(null);
   const [cartEdits, setCartEdits] = useState<CartEdits>(EMPTY_EDITS);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [savedToPlan, setSavedToPlan] = useState(false);
 
   // Every new request bumps this; responses for older requests are dropped.
   const requestId = useRef(0);
@@ -223,6 +226,7 @@ export function Flow({
     setList(null);
     setListError(null);
     setCart(null);
+    setSavedToPlan(false);
     const id = ++requestId.current;
     try {
       const res = await api<IngredientsOk>("/api/dish/ingredients", {
@@ -244,6 +248,12 @@ export function Flow({
     } catch (e) {
       if (id === requestId.current) setListError(errorMessage(e));
     }
+  }
+
+  function saveToPlan() {
+    if (!variants || !choice) return;
+    addToWishlist({ dish: variants.dish, style: choice.style, variantTitle: choice.title, cuisine: variants.cuisine });
+    setSavedToPlan(true);
   }
 
   function cartBody(dryRun = false): CartBody | null {
@@ -468,6 +478,8 @@ export function Flow({
           onServings={setServings}
           onRetry={() => chooseStyle(choice)}
           onBuild={() => buildCart()}
+          onSave={saveToPlan}
+          saved={savedToPlan}
         />
       )}
 

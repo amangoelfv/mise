@@ -2,6 +2,7 @@
 
 import { mealProteinShareG, proteinTargetG } from "@/lib/nutrition";
 import { usePrefs } from "@/lib/prefs";
+import { recommendedStyle } from "@/lib/recommend";
 import { DISH_STYLES } from "@/lib/styles";
 import type { DishVariant, Source, VariantsOk } from "@/lib/types";
 import { DishIdeas } from "../dish-input";
@@ -37,6 +38,7 @@ export function StylePicker({
   const prefs = usePrefs();
   const target = proteinTargetG(prefs.ageBand, prefs.weightKg);
   const share = target === null ? null : mealProteinShareG(target);
+  const rec = recommendedStyle(prefs.ageBand, prefs.weightKg); // which style to flag "for you"
 
   if (error) {
     return (
@@ -86,22 +88,31 @@ export function StylePicker({
       <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
         {DISH_STYLES.map((style, index) => {
           const variant = byStyle.get(style.id);
+          const recommended = !!variant && rec?.style === style.id;
           return (
             <button
               key={style.id}
               type="button"
               disabled={!variant}
               onClick={() => variant && onPick(variant)}
-              className="option animate-rise group"
+              className={`option animate-rise group ${recommended ? "ring-1 ring-inset ring-saffron/40" : ""}`}
               style={{ animationDelay: `${index * 60}ms` }}
             >
               <div className="flex items-start justify-between">
                 <span className="option-num dots text-[34px] leading-none text-paper/30 transition-colors">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <ArrowUpRight size={18} className="text-saffron opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100" />
+                <div className="flex items-center gap-2">
+                  {recommended && (
+                    <span className="tag border-saffron/40 text-saffron" title={rec!.reason}>
+                      ★ For you
+                    </span>
+                  )}
+                  <ArrowUpRight size={18} className="text-saffron opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100" />
+                </div>
               </div>
               <p className="label mt-5">{style.label}</p>
+              {recommended && <p className="mt-1 text-[12px] text-saffron/80">Recommended for you · {rec!.reason}</p>}
               {variant ? (
                 <>
                   <h3 className="mt-2 text-[22px] font-semibold leading-tight tracking-[-0.02em] [font-stretch:108%]">{variant.title}</h3>
