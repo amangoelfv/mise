@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { api, errorMessage } from "@/lib/client";
-import { DIET_OPTIONS } from "@/lib/options";
+import { HEIGHT_CM, WEIGHT_KG, mealProteinShareG, proteinTargetG } from "@/lib/nutrition";
+import { AGE_BAND_OPTIONS, BUDGET_OPTIONS, DIET_OPTIONS } from "@/lib/options";
 import type { ZeptoState } from "@/lib/types";
 import { setPrefsUser, updatePrefs, usePrefs } from "@/lib/prefs";
 import { Dialog } from "./dialog";
@@ -11,6 +12,13 @@ import { ArrowRight, Logout, Minus, Plus } from "./icons";
 import { StoreMark, ZeptoConnect } from "./zepto-connect";
 
 const COMING_SOON = ["Blinkit", "Swiggy Instamart", "BigBasket", "Amazon Fresh"];
+
+/** Empty or out-of-range clears the field: a half-typed number is not an answer. */
+function toNumber(value: string, range: { min: number; max: number }): number | null {
+  const n = Number(value.replace(/\D/g, "").slice(0, 3));
+  if (!Number.isFinite(n) || n === 0) return null;
+  return n >= range.min && n <= range.max ? n : null;
+}
 
 function Section({ id, title, hint, children }: { id: string; title: string; hint?: string; children: ReactNode }) {
   return (
@@ -50,6 +58,7 @@ export function SettingsView({
 
   const router = useRouter();
   const prefs = usePrefs();
+  const proteinTarget = proteinTargetG(prefs.ageBand, prefs.weightKg);
   const [zepto, setZepto] = useState(initialZepto);
   const [connectOpen, setConnectOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -72,7 +81,7 @@ export function SettingsView({
   return (
     <main className="mx-auto w-full max-w-2xl px-5 pb-24 pt-10 sm:px-8">
       <h1 className="display animate-rise text-[40px]">Settings</h1>
-      <p className="animate-rise mt-3 text-paper/50 [animation-delay:60ms]">Stores, diet and defaults. Kitchen settings are saved on this device.</p>
+      <p className="animate-rise mt-3 text-paper/50 [animation-delay:60ms]">Stores, diet and defaults. Kitchen settings are saved on this device, for this account.</p>
 
       <div className="mt-10 space-y-10">
         <Section id="connectors" title="Connectors" hint="Stores Mise can build carts in. Mise never sees your passwords or payment details.">
@@ -115,7 +124,7 @@ export function SettingsView({
           ))}
         </Section>
 
-        <Section id="kitchen" title="Kitchen" hint="Sent to Gemini with every dish. Saved on this device.">
+        <Section id="kitchen" title="Kitchen" hint="Sent to Gemini with every dish. Saved on this device, for this account.">
           <Row title="Default servings" hint="You can change it per dish too.">
             <div className="flex items-center rounded-[10px] border border-line">
               <button
@@ -157,6 +166,50 @@ export function SettingsView({
             </div>
           </div>
           <div className="px-5 py-4">
+            <p className="text-[15px]">Age</p>
+            <p className="mt-0.5 text-[13px] text-paper/45">Sets how much protein a day we aim for.</p>
+            <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Age">
+              {AGE_BAND_OPTIONS.map((band) => (
+                <button
+                  key={band.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={prefs.ageBand === band.id}
+                  onClick={() => updatePrefs({ ageBand: prefs.ageBand === band.id ? null : band.id })}
+                  className={`rounded-[10px] border px-3.5 py-1.5 text-[13.5px] transition ${prefs.ageBand === band.id ? "border-saffron bg-saffron text-ink" : "border-line text-paper/60 hover:border-paper/30 hover:text-paper"}`}
+                >
+                  {band.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="px-5 py-4">
+            <p className="text-[15px]">Weight & height</p>
+            <p className="mt-0.5 text-[13px] text-paper/45">
+              {proteinTarget
+                ? `About ${proteinTarget} g protein a day, roughly ${mealProteinShareG(proteinTarget)} g a meal. A general guide, not nutritional advice.`
+                : "Optional. Weight sets the protein target; height is kept for later."}
+            </p>
+            <div className="mt-3 flex gap-2">
+              <input
+                inputMode="numeric"
+                aria-label="Weight in kilograms"
+                value={prefs.weightKg ?? ""}
+                onChange={(e) => updatePrefs({ weightKg: toNumber(e.target.value, WEIGHT_KG) })}
+                placeholder="kg"
+                className="h-10 w-24 rounded-[10px] border border-line bg-ink px-3 text-center font-mono text-[14px] outline-none placeholder:text-paper/20 focus:border-saffron"
+              />
+              <input
+                inputMode="numeric"
+                aria-label="Height in centimetres"
+                value={prefs.heightCm ?? ""}
+                onChange={(e) => updatePrefs({ heightCm: toNumber(e.target.value, HEIGHT_CM) })}
+                placeholder="cm"
+                className="h-10 w-24 rounded-[10px] border border-line bg-ink px-3 text-center font-mono text-[14px] outline-none placeholder:text-paper/20 focus:border-saffron"
+              />
+            </div>
+          </div>
+          <div className="px-5 py-4">
             <label htmlFor="avoid" className="text-[15px]">
               Allergies & dislikes
             </label>
@@ -182,6 +235,25 @@ export function SettingsView({
               />
             </button>
           </Row>
+          <div className="px-5 py-4">
+            <p className="text-[15px]">Shopping</p>
+            <p className="mt-0.5 text-[13px] text-paper/45">How your store picks between products that both fit.</p>
+            <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Shopping preference">
+              {BUDGET_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={prefs.budget === option.id}
+                  onClick={() => updatePrefs({ budget: option.id })}
+                  title={option.hint}
+                  className={`rounded-[10px] border px-3.5 py-1.5 text-[13.5px] transition ${prefs.budget === option.id ? "border-saffron bg-saffron text-ink" : "border-line text-paper/60 hover:border-paper/30 hover:text-paper"}`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <Row title="Delivery pincode" hint="Optional. Helps match what's in stock near you.">
             <input
               inputMode="numeric"
