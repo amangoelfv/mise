@@ -1,14 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
-import { api, errorMessage } from "@/lib/client";
+import { type ReactNode } from "react";
 import type { Diet } from "@/lib/contract";
 import type { ZeptoState } from "@/lib/types";
 import { updatePrefs, usePrefs } from "@/lib/prefs";
-import { Dialog } from "./dialog";
-import { ArrowRight, Logout, Minus, Plus } from "./icons";
-import { StoreMark, ZeptoConnect } from "./zepto-connect";
+import { Logout, Minus, Plus } from "./icons";
+import { StoreMark } from "./zepto-connect";
 
 const DIETS: { id: Diet; label: string }[] = [
   { id: "any", label: "Anything" },
@@ -46,33 +43,14 @@ function Row({ title, hint, children }: { title: string; hint?: string; children
 
 export function SettingsView({
   user,
-  zepto: initialZepto,
+  zepto,
   system,
 }: {
   user: { name: string; email: string; picture?: string; demo: boolean };
   zepto: ZeptoState;
-  system: { gemini: boolean; cartApi: "live" | "mock" };
+  system: { gemini: boolean; cartApi: "live" | "local" };
 }) {
-  const router = useRouter();
   const prefs = usePrefs();
-  const [zepto, setZepto] = useState(initialZepto);
-  const [connectOpen, setConnectOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function disconnect() {
-    setBusy(true);
-    setError(null);
-    try {
-      await api("/api/connectors/zepto", { method: "DELETE" });
-      setZepto({ connected: false });
-      router.refresh();
-    } catch (e) {
-      setError(errorMessage(e));
-    } finally {
-      setBusy(false);
-    }
-  }
 
   return (
     <main className="mx-auto w-full max-w-2xl px-5 pb-24 pt-10 sm:px-8">
@@ -81,6 +59,7 @@ export function SettingsView({
 
       <div className="mt-10 space-y-10">
         <Section id="connectors" title="Connectors" hint="Stores Mise can build carts in. Mise never sees your passwords or payment details.">
+          {/* Read-only here. Connecting a store is an operator action on the admin path. */}
           <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center">
             <StoreMark name="Zepto" size={44} live={zepto.connected} />
             <div className="min-w-0 flex-1">
@@ -95,22 +74,10 @@ export function SettingsView({
                 )}
               </div>
               <p className="mt-0.5 font-mono text-[12px] text-paper/45">
-                {zepto.connected
-                  ? `${zepto.via === "simulated" ? "Simulated connection" : "Signed in with Zepto"}${zepto.since ? ` · since ${new Date(zepto.since).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}` : ""}`
-                  : "Official Zepto sign-in with your phone and OTP."}
+                {zepto.connected ? "Your kitchen is linked — build carts from any dish." : "Not linked yet."}
               </p>
             </div>
-            {zepto.connected ? (
-              <button type="button" onClick={disconnect} disabled={busy} className="btn-ghost">
-                {busy ? "Disconnecting…" : "Disconnect"}
-              </button>
-            ) : (
-              <button type="button" onClick={() => setConnectOpen(true)} className="btn-accent">
-                Connect <ArrowRight size={16} />
-              </button>
-            )}
           </div>
-          {error && <p className="px-5 py-3 text-sm text-chili">{error}</p>}
           {COMING_SOON.map((name) => (
             <div key={name} className="flex items-center gap-4 px-5 py-3.5">
               <StoreMark name={name} size={44} />
@@ -227,31 +194,18 @@ export function SettingsView({
           <Row title="Gemini" hint={system.gemini ? "Generating live with your API key." : "Using built-in sample data. Set GEMINI_API_KEY."}>
             <StatusPill on={system.gemini} onLabel="Live" offLabel="Sample" />
           </Row>
-          <Row title="Cart API" hint={system.cartApi === "live" ? "Sending carts to CART_API_URL." : "Simulating carts locally. Set CART_API_URL."}>
-            <StatusPill on={system.cartApi === "live"} onLabel="Live" offLabel="Simulated" />
+          <Row title="Cart API" hint={system.cartApi === "live" ? "Sending carts to CART_API_URL." : "Resolving carts in-process."}>
+            <StatusPill on={system.cartApi === "live"} onLabel="Live" offLabel="In-process" />
           </Row>
         </Section>
       </div>
-
-      <Dialog open={connectOpen} onClose={() => setConnectOpen(false)} title="Connect Zepto">
-        <ZeptoConnect
-          allowSimulated={system.cartApi === "mock"}
-          onConnected={(state) => {
-            setZepto(state);
-            setConnectOpen(false);
-            router.refresh();
-          }}
-        />
-      </Dialog>
     </main>
   );
 }
 
 function StatusPill({ on, onLabel, offLabel }: { on: boolean; onLabel: string; offLabel: string }) {
   return (
-    <span
-      className={`tag ${on ? "border-herb/30 text-herb" : "border-turmeric/30 text-turmeric"}`}
-    >
+    <span className={`tag ${on ? "border-herb/30 text-herb" : "border-turmeric/30 text-turmeric"}`}>
       <span className={`size-1.5 rounded-full ${on ? "bg-herb" : "bg-turmeric"}`} />
       {on ? onLabel : offLabel}
     </span>

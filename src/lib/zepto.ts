@@ -34,6 +34,26 @@ export interface ZeptoTokens {
   clientId: string;
 }
 
+/**
+ * Temporary single-account demo override for hackathon / dev use.
+ * When set, Mise uses this Zepto bearer token instead of the normal OAuth sign-in flow.
+ * This is intentionally opt-in and should not be the default production model.
+ */
+export function demoZeptoOverride(): ZeptoTokens | null {
+  const accessToken = process.env.ZEPTO_ACCESS_TOKEN ?? process.env.ZEPTO_DEMO_ACCESS_TOKEN;
+  if (!accessToken) return null;
+
+  const rawExpiresAt = Number(process.env.ZEPTO_ACCESS_TOKEN_EXPIRES_AT ?? process.env.ZEPTO_DEMO_ACCESS_TOKEN_EXPIRES_AT ?? "");
+  const expiresAt = Number.isFinite(rawExpiresAt) && rawExpiresAt > Date.now() ? rawExpiresAt : Date.now() + 7 * 24 * 60 * 60 * 1000;
+
+  return {
+    accessToken,
+    refreshToken: process.env.ZEPTO_REFRESH_TOKEN ?? process.env.ZEPTO_DEMO_REFRESH_TOKEN,
+    expiresAt,
+    clientId: process.env.ZEPTO_CLIENT_ID ?? process.env.ZEPTO_DEMO_CLIENT_ID ?? "demo-override",
+  };
+}
+
 let metadata: Promise<AuthMetadata> | null = null;
 function authMetadata(): Promise<AuthMetadata> {
   metadata ??= fetch(`${AUTH_SERVER}/.well-known/oauth-authorization-server`, { cache: "no-store" }).then((res) => {
