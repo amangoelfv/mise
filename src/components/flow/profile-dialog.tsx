@@ -37,6 +37,7 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
  */
 export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => void }) {
   const [start] = useState(getPrefs);
+  const [name, setName] = useState(start.name);
   const [ageBand, setAgeBand] = useState<AgeBand | null>(start.ageBand);
   const [weight, setWeight] = useState(start.weightKg === null ? "" : String(start.weightKg));
   const [height, setHeight] = useState(start.heightCm === null ? "" : String(start.heightCm));
@@ -63,6 +64,7 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
 
   const save = () =>
     finish({
+      name: name.trim(),
       ageBand,
       weightKg,
       heightCm: parseInRange(height, HEIGHT_CM),
@@ -83,6 +85,19 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
       </p>
 
       <div className="space-y-6">
+        <div>
+          <label htmlFor="profile-name" className="label">
+            Your name
+          </label>
+          <input
+            id="profile-name"
+            value={name}
+            onChange={(e) => setName(e.target.value.slice(0, 40))}
+            placeholder="So we can greet you by name"
+            className={`mt-2.5 ${FIELD}`}
+          />
+        </div>
+
         <Group label="Age">
           {AGE_BAND_OPTIONS.map((option) => (
             <button

@@ -144,7 +144,8 @@ export async function resolveCart(
   }
 
   const itemsInr = round2(lines.reduce((sum, l) => sum + l.priceInr, 0));
-  const deliveryInr = itemsInr >= 199 ? 0 : 30;
+  // No delivery fee on an empty cart (e.g. everything was already in the kitchen).
+  const deliveryInr = lines.length === 0 ? 0 : itemsInr >= 199 ? 0 : 30;
   const status = pickStatus(lines.length, requiredUnavailable, toBuy.length);
 
   return {

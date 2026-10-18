@@ -5,7 +5,7 @@ import type { CatalogDish } from "@/lib/catalog";
 import { ApiError, api, errorMessage, scaleQuantity } from "@/lib/client";
 import type { CartStatus } from "@/lib/contract";
 import { proteinTargetG } from "@/lib/nutrition";
-import { avoidList, getPrefs, setPrefsUser } from "@/lib/prefs";
+import { avoidList, getPrefs, setPrefsUser, usePrefs } from "@/lib/prefs";
 import { styleById } from "@/lib/styles";
 import { addToWishlist, setWishlistUser } from "@/lib/wishlist";
 import type { CartBody, DishVariant, IngredientsOk, VariantsOk, VariantsResult, ZeptoState } from "@/lib/types";
@@ -60,6 +60,10 @@ export function Flow({
   setPrefsUser(userId);
   setWishlistUser(userId);
 
+  // Greet by the name the cook gave in their profile; fall back to the account's first name.
+  const prefs = usePrefs();
+  const displayName = prefs.name.trim() ? prefs.name.trim().split(/\s+/)[0] : firstName;
+
   const [stage, setStage] = useState<Stage>(initialQuery ? "styles" : "ask");
   const [query, setQuery] = useState(initialQuery);
   const [variants, setVariants] = useState<VariantsOk | null>(null);
@@ -112,6 +116,9 @@ export function Flow({
   async function fetchVariants(dish: string) {
     const id = ++requestId.current;
     const prefs = getPrefs();
+    // Fresh dish: start from the profile's serving size. Within one dish, any change the
+    // cook makes on the ingredient screen is kept across style re-picks (see chooseStyle).
+    setServings(prefs.servings);
     try {
       const res = await api<VariantsResult>("/api/dish/variants", {
         body: {
@@ -239,7 +246,7 @@ export function Flow({
           cuisine: variants.cuisine,
           style: variant.style,
           variant: { title: variant.title, tagline: variant.tagline, highlights: variant.highlights },
-          servings: prefs.servings,
+          servings,
           diet: prefs.diet,
           avoid: avoidList(prefs),
           budget: prefs.budget,
@@ -444,7 +451,7 @@ export function Flow({
 
       {stage === "ask" && (
         <section className="mx-auto mt-8 flex w-full max-w-3xl flex-col">
-          <p className="label animate-rise text-center">Hi {firstName}</p>
+          <p className="label animate-rise text-center">Hi {displayName}</p>
           <h1 className="display animate-rise mt-4 text-center text-[clamp(2.3rem,6vw,4rem)] [animation-delay:60ms]">
             What do you want to eat today?
           </h1>
