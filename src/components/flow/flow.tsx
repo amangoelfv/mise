@@ -4,7 +4,7 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import type { CatalogDish } from "@/lib/catalog";
 import { ApiError, api, errorMessage, scaleQuantity } from "@/lib/client";
 import type { CartStatus } from "@/lib/contract";
-import { avoidList, getPrefs } from "@/lib/prefs";
+import { avoidList, getPrefs, setPrefsUser } from "@/lib/prefs";
 import type { CartBody, DishVariant, IngredientsOk, VariantsOk, VariantsResult, ZeptoState } from "@/lib/types";
 import { Dialog } from "../dialog";
 import { DishInput } from "../dish-input";
@@ -37,18 +37,23 @@ const pushStep = (step: Stage) => window.history.pushState({ ...window.history.s
 const replaceStep = (step: Stage, url?: string) => window.history.replaceState({ ...window.history.state, miseStep: step }, "", url);
 
 export function Flow({
+  userId,
   firstName,
   initialQuery,
   zepto: initialZepto,
   simulatedCart,
   catalog,
 }: {
+  userId: string;
   firstName: string;
   initialQuery: string;
   zepto: ZeptoState;
   simulatedCart: boolean;
   catalog: CatalogDish[];
 }) {
+  // Before any getPrefs() call below, so prefs resolve against this account's record.
+  setPrefsUser(userId);
+
   const [stage, setStage] = useState<Stage>(initialQuery ? "styles" : "ask");
   const [query, setQuery] = useState(initialQuery);
   const [variants, setVariants] = useState<VariantsOk | null>(null);
