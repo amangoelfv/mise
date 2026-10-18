@@ -53,6 +53,7 @@ export async function resolveCart(
 
   const toBuy: CartItem[] = [];
   const skipped: NonNullable<CartStatus["skipped"]> = [];
+  const skippedItems: CartItem[] = []; // parallel to `skipped`, so we can resolve them for one-tap add-back
   for (const item of request.items) {
     const have = probablyHave(item.name, pantry, catalog, now);
     if (have) {
@@ -63,6 +64,7 @@ export async function resolveCart(
         boughtDaysAgo: have.lastAcquiredDaysAgo,
         shelfLifeDays: have.shelfLifeDays,
       });
+      skippedItems.push(item);
       console.info(`[resolve] skip "${item.name}" — already have (${have.reason})`);
     } else {
       toBuy.push(item);
@@ -70,7 +72,9 @@ export async function resolveCart(
   }
   console.info(`[resolve] ${request.items.length} items → ${toBuy.length} to search, ${skipped.length} already have (${orders.length} past orders)`);
 
-  const results = await source.searchMany(toBuy.map((i) => i.searchQuery || i.name));
+  // Search both the to-buy items and the already-have ones in one batched call, so a
+  // skipped item already has a resolved product the user can add back in one tap.
+  const results = await source.searchMany([...toBuy, ...skippedItems].map((i) => i.searchQuery || i.name));
 
   // "Your usual brand": brands that appear in both order history and the candidates.
   const knownBrands = new Set<string>();
@@ -128,6 +132,15 @@ export async function resolveCart(
       if (!item.optional) requiredUnavailable += 1;
       console.warn(`[resolve] "${item.name}" → UNAVAILABLE (${outcome.item.reason}, ${products.length} candidates)`);
     }
+  }
+
+  // Resolve the already-have items too (deterministic pick, no AI needed for a fallback),
+  // and attach the product line so the UI can offer a one-tap "add back".
+  for (let i = 0; i < skippedItems.length; i++) {
+    const item = skippedItems[i]!;
+    const products = results.get(normalizeName(item.searchQuery || item.name)) ?? [];
+    const outcome = resolveLine(item, products, catalog, { preferredBrands });
+    if (outcome.kind === "line") skipped[i]!.line = outcome.line;
   }
 
   const itemsInr = round2(lines.reduce((sum, l) => sum + l.priceInr, 0));

@@ -68,18 +68,19 @@ const FRICTION = [
 
 const STEPS = [
   ["Dish", "You", "Type anything: “rajma chawal”, “that creamy pasta”."],
-  ["Style", "You", "Restaurant, basic, healthy or protein-rich."],
-  ["List", "Gemini", "Exact quantities for your servings, staples flagged, substitutes noted. Untick what you have."],
-  ["Cart", "Cart API", "Matches each item to a Zepto product and pack size. You open the cart and pay."],
+  ["Style", "You", "Restaurant, basic, healthy or protein-rich, tuned to your age, diet and protein target."],
+  ["List", "Gemini", "Exact quantities for your servings; pantry staples and items already in your Zepto history are skipped. Untick anything else you have."],
+  ["Cart", "Gemini + Mise", "Gemini picks the best Zepto product per ingredient for your style and budget, with a short why-this-pick. Mise builds the cart live on Zepto."],
+  ["Door", "Mise", "You review and edit, then Mise orders on its own Zepto account and delivers to your address."],
 ];
 
 const PIPELINE = [
   ["You", "“white sauce pasta”"],
   ["Gemini 3.5 Flash-Lite", "Four takes on the dish"],
   ["Gemini 3.8 Flash", "Ingredient list against a JSON schema"],
-  ["Mise", "Cart request, contract v1.0"],
-  ["Cart API", "Products, packs, prices"],
-  ["Zepto", "Cart ready to check out"],
+  ["Mise engine", "Searches live Zepto; Gemini picks the best product per item"],
+  ["Cart", "Built in-process, your kitchen staples already skipped"],
+  ["Zepto", "Order placed and delivered to your door"],
 ];
 
 const STORES: [string, string, string][] = [
@@ -142,8 +143,8 @@ export default function Landing() {
                 What do you want to eat today?
               </h1>
               <p className="reveal mt-7 max-w-md text-[17px] leading-relaxed text-paper/60" style={reveal(2)}>
-                Type a dish. Mise asks how you want to cook it, writes the exact grocery list with Gemini, and builds the
-                cart on Zepto.
+                Type a dish. Mise tailors it to your profile and protein target, writes the exact grocery list with
+                Gemini, then builds the cart on live Zepto and delivers it to your door.
               </p>
               <div className="reveal mt-9 flex flex-wrap gap-3" style={reveal(3)}>
                 <Link href="/app" className="btn-accent h-12 px-6">
@@ -214,8 +215,9 @@ export default function Landing() {
               <Kicker n={2}>Product</Kicker>
               <H2>Mise does the translating.</H2>
               <p className="reveal mt-6 max-w-md text-[17px] leading-relaxed text-paper/55" style={reveal(2)}>
-                Pick the version you&apos;re in the mood for. Gemini returns quantities for your table, flags what&apos;s
-                probably already in your kitchen, and sends a structured order to the store.
+                Pick the version you&apos;re in the mood for. Gemini sizes it to your profile and protein target, skips
+                what&apos;s already in your kitchen from your Zepto history, chooses the best product for each ingredient
+                with a reason, and delivers it to your door.
               </p>
             </div>
             <div className="reveal flex justify-center md:justify-end" style={reveal(2)}>
@@ -353,7 +355,7 @@ export default function Landing() {
                 card. The cart contract doesn&apos;t mention Zepto anywhere it doesn&apos;t have to.
               </p>
               <p className="reveal mt-8 font-mono text-[12.5px] leading-loose text-paper/45" style={reveal(3)}>
-                <span className="text-paper/70">Next:</span> pantry memory / weekly plans / budget mode / split across stores
+                <span className="text-paper/70">Next:</span> weekly plans / split across stores / more quick-commerce stores
               </p>
             </div>
             <div className="reveal panel divide-y divide-line" style={reveal(2)}>
