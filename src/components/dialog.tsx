@@ -10,12 +10,15 @@ export function Dialog({
   title,
   children,
   wide = false,
+  focusFirstField = true,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: ReactNode;
   wide?: boolean;
+  /** Off for tap-first forms, where focusing a number field pops the mobile keyboard. */
+  focusFirstField?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -25,10 +28,10 @@ export function Dialog({
     if (open && !dialog.open) {
       dialog.showModal();
       // showModal() focuses the first focusable (the close button); prefer the first field.
-      dialog.querySelector<HTMLElement>("input, textarea, select")?.focus();
+      if (focusFirstField) dialog.querySelector<HTMLElement>("input, textarea, select")?.focus();
     }
     if (!open && dialog.open) dialog.close();
-  }, [open]);
+  }, [open, focusFirstField]);
 
   return (
     <dialog

@@ -3,20 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { api, errorMessage } from "@/lib/client";
-import type { Diet } from "@/lib/contract";
+import { DIET_OPTIONS } from "@/lib/options";
 import type { ZeptoState } from "@/lib/types";
 import { setPrefsUser, updatePrefs, usePrefs } from "@/lib/prefs";
 import { Dialog } from "./dialog";
 import { ArrowRight, Logout, Minus, Plus } from "./icons";
 import { StoreMark, ZeptoConnect } from "./zepto-connect";
-
-const DIETS: { id: Diet; label: string }[] = [
-  { id: "any", label: "Anything" },
-  { id: "vegetarian", label: "Vegetarian" },
-  { id: "eggetarian", label: "Eggetarian" },
-  { id: "vegan", label: "Vegan" },
-  { id: "jain", label: "Jain" },
-];
 
 const COMING_SOON = ["Blinkit", "Swiggy Instamart", "BigBasket", "Amazon Fresh"];
 
@@ -150,7 +142,7 @@ export function SettingsView({
           <div className="px-5 py-4">
             <p className="text-[15px]">Diet</p>
             <div className="mt-3 flex flex-wrap gap-1.5" role="radiogroup" aria-label="Diet">
-              {DIETS.map((diet) => (
+              {DIET_OPTIONS.map((diet) => (
                 <button
                   key={diet.id}
                   type="button"
