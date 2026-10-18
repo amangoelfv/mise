@@ -4,6 +4,7 @@ import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import type { CatalogDish } from "@/lib/catalog";
 import { ApiError, api, errorMessage, scaleQuantity } from "@/lib/client";
 import type { CartStatus } from "@/lib/contract";
+import { proteinTargetG } from "@/lib/nutrition";
 import { avoidList, getPrefs, setPrefsUser } from "@/lib/prefs";
 import type { CartBody, DishVariant, IngredientsOk, VariantsOk, VariantsResult, ZeptoState } from "@/lib/types";
 import { Dialog } from "../dialog";
@@ -100,7 +101,13 @@ export function Flow({
     const prefs = getPrefs();
     try {
       const res = await api<VariantsResult>("/api/dish/variants", {
-        body: { query: dish, diet: prefs.diet, avoid: avoidList(prefs) },
+        body: {
+          query: dish,
+          diet: prefs.diet,
+          avoid: avoidList(prefs),
+          budget: prefs.budget,
+          proteinTargetG: proteinTargetG(prefs.ageBand, prefs.weightKg),
+        },
       });
       if (id !== requestId.current) return;
       if (res.ok) setVariants(res);
@@ -197,6 +204,7 @@ export function Flow({
           servings: prefs.servings,
           diet: prefs.diet,
           avoid: avoidList(prefs),
+          budget: prefs.budget,
         },
       });
       if (id !== requestId.current) return;
