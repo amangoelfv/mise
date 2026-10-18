@@ -22,6 +22,8 @@ export function IngredientList({
   onServings,
   onRetry,
   onBuild,
+  onSave,
+  saved,
 }: {
   dish: string;
   variant: DishVariant;
@@ -35,6 +37,8 @@ export function IngredientList({
   onServings: (n: number) => void;
   onRetry: () => void;
   onBuild: () => void;
+  onSave?: () => void;
+  saved?: boolean;
 }) {
   const style = styleById(variant.style);
   const chosen = items.filter((i) => !excluded.has(i.id));
@@ -61,6 +65,18 @@ export function IngredientList({
           <div className="mt-4">
             <SampleBadge source={list.source} />
           </div>
+        )}
+        {onSave && (
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saved}
+            aria-pressed={saved}
+            className={`mt-4 inline-flex h-9 items-center gap-2 rounded-[10px] border px-3.5 font-mono text-[11px] uppercase tracking-[0.12em] transition ${saved ? "cursor-default border-herb/40 text-herb" : "border-line text-paper/60 hover:border-paper/30 hover:text-paper"}`}
+          >
+            {saved ? <Check size={14} strokeWidth={2.4} /> : <Plus size={14} />}
+            {saved ? "Saved to plan" : "Save to plan"}
+          </button>
         )}
       </div>
 

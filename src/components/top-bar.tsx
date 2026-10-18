@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./brand";
-import { Sliders } from "./icons";
+import { Calendar, Sliders } from "./icons";
 
 export function TopBar({ name, picture }: { name?: string; picture?: string }) {
   const pathname = usePathname();
@@ -21,6 +21,13 @@ export function TopBar({ name, picture }: { name?: string; picture?: string }) {
           <Logo />
         </Link>
         <nav className="flex items-center gap-2">
+          <Link
+            href="/plan"
+            className={`flex h-9 items-center gap-2 rounded-[10px] px-3 font-mono text-[12px] uppercase tracking-[0.12em] transition ${pathname === "/plan" ? "bg-ink-3 text-paper" : "text-paper/55 hover:text-paper"}`}
+          >
+            <Calendar size={16} />
+            <span className="hidden sm:inline">Plan</span>
+          </Link>
           <Link
             href="/settings"
             className={`flex h-9 items-center gap-2 rounded-[10px] px-3 font-mono text-[12px] uppercase tracking-[0.12em] transition ${pathname === "/settings" ? "bg-ink-3 text-paper" : "text-paper/55 hover:text-paper"}`}
