@@ -13,10 +13,10 @@ import { StoreMark, ZeptoConnect } from "./zepto-connect";
 
 const COMING_SOON = ["Blinkit", "Swiggy Instamart", "BigBasket", "Amazon Fresh"];
 
-/** Empty or out-of-range clears the field: a half-typed number is not an answer. */
-function toNumber(value: string, range: { min: number; max: number }): number | null {
-  const n = Number(value.replace(/\D/g, "").slice(0, 3));
-  if (!Number.isFinite(n) || n === 0) return null;
+/** A half-typed number is not an answer, so out-of-range stores null — see `draft` below. */
+function toNumber(digits: string, range: { min: number; max: number }): number | null {
+  const n = Number(digits);
+  if (!digits || !Number.isFinite(n) || n === 0) return null;
   return n >= range.min && n <= range.max ? n : null;
 }
 
@@ -59,6 +59,13 @@ export function SettingsView({
   const router = useRouter();
   const prefs = usePrefs();
   const proteinTarget = proteinTargetG(prefs.ageBand, prefs.weightKg);
+  /**
+   * What the person has typed, which is NOT the same as what is stored. Binding these fields
+   * straight to prefs made them impossible to use: typing "7" towards "70" is out of range, so
+   * it stored null, and the field snapped back to empty before the second digit. Null means
+   * "not editing", so a value arriving from storage still shows.
+   */
+  const [draft, setDraft] = useState<{ weight?: string; height?: string }>({});
   const [zepto, setZepto] = useState(initialZepto);
   const [connectOpen, setConnectOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -194,16 +201,24 @@ export function SettingsView({
               <input
                 inputMode="numeric"
                 aria-label="Weight in kilograms"
-                value={prefs.weightKg ?? ""}
-                onChange={(e) => updatePrefs({ weightKg: toNumber(e.target.value, WEIGHT_KG) })}
+                value={draft.weight ?? (prefs.weightKg === null ? "" : String(prefs.weightKg))}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                  setDraft((d) => ({ ...d, weight: digits }));
+                  updatePrefs({ weightKg: toNumber(digits, WEIGHT_KG) });
+                }}
                 placeholder="kg"
                 className="h-10 w-24 rounded-[10px] border border-line bg-ink px-3 text-center font-mono text-[14px] outline-none placeholder:text-paper/20 focus:border-saffron"
               />
               <input
                 inputMode="numeric"
                 aria-label="Height in centimetres"
-                value={prefs.heightCm ?? ""}
-                onChange={(e) => updatePrefs({ heightCm: toNumber(e.target.value, HEIGHT_CM) })}
+                value={draft.height ?? (prefs.heightCm === null ? "" : String(prefs.heightCm))}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "").slice(0, 3);
+                  setDraft((d) => ({ ...d, height: digits }));
+                  updatePrefs({ heightCm: toNumber(digits, HEIGHT_CM) });
+                }}
                 placeholder="cm"
                 className="h-10 w-24 rounded-[10px] border border-line bg-ink px-3 text-center font-mono text-[14px] outline-none placeholder:text-paper/20 focus:border-saffron"
               />

@@ -157,7 +157,10 @@ export function Flow({
 
   function applyStage(target: Stage) {
     requestId.current++;
-    // Never leave a modal over a screen the user navigated away from.
+    // Never leave a modal over a screen the user navigated away from. Clear the waiting dish
+    // first: closing the dialog runs its skip handler, which would otherwise fetch variants for
+    // a dish the person just walked away from and show them on the way forward again.
+    pendingDish.current = "";
     setProfileOpen(false);
     if (resetOnPop.current) {
       resetOnPop.current = false;

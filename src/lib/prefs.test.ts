@@ -6,11 +6,14 @@ import assert from "node:assert/strict";
  * cache-busted import rather than a reset hook in production code.
  */
 let instance = 0;
-async function freshPrefs(seed: Record<string, string> = {}) {
+async function freshPrefs(seed: Record<string, string> = {}, failWrites = false) {
   const store = new Map(Object.entries(seed));
   const stub = {
     getItem: (k: string) => (store.has(k) ? store.get(k)! : null),
-    setItem: (k: string, v: string) => void store.set(k, v),
+    setItem: (k: string, v: string) => {
+      if (failWrites) throw new DOMException("quota", "QuotaExceededError");
+      store.set(k, v);
+    },
     removeItem: (k: string) => void store.delete(k),
     clear: () => store.clear(),
     key: (i: number) => [...store.keys()][i] ?? null,
@@ -145,4 +148,26 @@ test("an unknown diet is replaced with any", async () => {
   const p = await freshPrefs({ [KEY_A]: JSON.stringify({ diet: "pescatarian-ish" }) });
   p.setPrefsUser("google:aaa");
   assert.equal(p.getPrefs().diet, "any");
+});
+
+/**
+ * Review finding: if getItem works but setItem throws (quota exhausted), the migration branch
+ * must not re-enter on every read. read() is useSyncExternalStore's getSnapshot, so an
+ * uncached result is a render loop, and re-seeding would also revert profileStatus to "unset"
+ * and strand the first-run dialog.
+ */
+test("a failed seed write does not re-enter the migration on every read", async () => {
+  const p = await freshPrefs({ [LEGACY]: JSON.stringify({ servings: 6 }) }, true);
+  p.setPrefsUser("google:aaa");
+  p.getPrefs();
+  const a = p.getPrefs();
+  const b = p.getPrefs();
+  assert.equal(a, b, "read() must return a stable object once settled");
+});
+
+test("a failed seed write does not revert a saved profileStatus", async () => {
+  const p = await freshPrefs({ [LEGACY]: JSON.stringify({ servings: 6 }) }, true);
+  p.setPrefsUser("google:aaa");
+  p.updatePrefs({ profileStatus: "saved" });
+  assert.equal(p.getPrefs().profileStatus, "saved");
 });
