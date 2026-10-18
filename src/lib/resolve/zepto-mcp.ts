@@ -16,6 +16,12 @@ import type { ZeptoProduct } from "./zepto-types";
 const TIMEOUT_MS = 15_000;
 const PROTOCOL_VERSION = "2025-06-18";
 
+// Which saved address (by label) sets the delivery store for live search. The account can
+// hold many addresses; pin one so prices/availability are consistent instead of "whichever
+// Zepto returns first". Override with ZEPTO_STORE_ADDRESS_LABEL; falls back to the first
+// address that has coordinates if the label isn't found.
+const STORE_ADDRESS_LABEL = (process.env.ZEPTO_STORE_ADDRESS_LABEL || "home").trim().toLowerCase();
+
 type JsonRpc = {
   result?: { content?: Array<{ type: string; text?: string }>; structuredContent?: unknown };
   error?: { message?: string };
@@ -122,15 +128,17 @@ class McpZeptoSource implements ZeptoSource {
 
   /** Set a delivery store so searches resolve (Zepto gates search on location). */
   private async ensureStore(): Promise<void> {
-    const addrs = await this.callTool<{ addresses?: Array<{ latitude?: number; longitude?: number }> }>(
+    const addrs = await this.callTool<{ addresses?: Array<{ label?: string; latitude?: number; longitude?: number }> }>(
       "list_saved_addresses",
       {},
     );
-    const a = addrs.addresses?.find((x) => typeof x.latitude === "number" && typeof x.longitude === "number");
+    const withCoords = (addrs.addresses ?? []).filter((x) => typeof x.latitude === "number" && typeof x.longitude === "number");
+    // Prefer the pinned label; otherwise the first address that has coordinates.
+    const a = withCoords.find((x) => (x.label ?? "").trim().toLowerCase() === STORE_ADDRESS_LABEL) ?? withCoords[0];
     if (a) {
       // get_location_serviceability returns a text confirmation ("✅ Zepto delivers…"), not JSON.
       const confirmation = await this.callToolSideEffect("get_location_serviceability", { latitude: a.latitude, longitude: a.longitude });
-      console.info(`[zepto] store set from saved address (lat ${a.latitude}, lng ${a.longitude}): ${confirmation.split("\n")[0]}`);
+      console.info(`[zepto] store set from saved address "${a.label ?? "(unlabelled)"}" (lat ${a.latitude}, lng ${a.longitude}): ${confirmation.split("\n")[0]}`);
     } else {
       console.warn(`[zepto] no saved address with coordinates (${addrs.addresses?.length ?? 0} addresses); search may return nothing`);
     }
