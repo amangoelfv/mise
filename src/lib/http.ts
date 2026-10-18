@@ -1,4 +1,4 @@
-import { BUDGET_PREFERENCES } from "./contract";
+import { BUDGET_PREFERENCES, DIET_VALUES } from "./contract";
 import { getUser, type SessionUser } from "./session";
 
 /**
@@ -43,7 +43,7 @@ export function oneOf<T extends string>(v: unknown, options: readonly T[], fallb
   return options.includes(v as T) ? (v as T) : fallback;
 }
 
-export const DIETS = ["any", "vegetarian", "eggetarian", "vegan", "jain"] as const;
+export const DIETS = DIET_VALUES;
 // Re-exported rather than redeclared: the client validates budget too, and src/lib/contract.ts
 // has no imports, so it is safe for a "use client" module in a way this file is not.
 export const BUDGETS = BUDGET_PREFERENCES;
