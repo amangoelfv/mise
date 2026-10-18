@@ -14,6 +14,7 @@ import { Orb } from "../orb";
 import { ZeptoConnect } from "../zepto-connect";
 import { CartView, type CartPhase } from "./cart-view";
 import { IngredientList } from "./ingredient-list";
+import { ProfileDialog } from "./profile-dialog";
 import { PayloadDialog, type PayloadState } from "./payload-dialog";
 import { StylePicker } from "./style-picker";
 
@@ -68,12 +69,15 @@ export function Flow({
   const [zepto, setZepto] = useState(initialZepto);
   const [connectOpen, setConnectOpen] = useState(false);
   const [payload, setPayload] = useState<PayloadState>({ open: false });
+  const [profileOpen, setProfileOpen] = useState(false);
 
   // Every new request bumps this; responses for older requests are dropped.
   const requestId = useRef(0);
   const buildAfterConnect = useRef(false);
   // Set before a history jump back to "ask" that should also clear the dish ("Cook something else").
   const resetOnPop = useRef(false);
+  // The dish waiting on the first-run profile questions, fetched once they are answered or skipped.
+  const pendingDish = useRef("");
 
   const items = useMemo(
     () =>
@@ -122,7 +126,7 @@ export function Flow({
       // Arrived with ?q=: make this entry "ask" so Back lands on the dish screen, then step forward.
       replaceStep("ask", "/app");
       pushStep("styles");
-      void fetchVariants(initialQuery);
+      askProfileOr(initialQuery);
     } else {
       replaceStep("ask");
     }
@@ -134,8 +138,27 @@ export function Flow({
     boot();
   }, []);
 
+  /** First dish on this device for this account: ask the profile questions before suggesting. */
+  function askProfileOr(dish: string) {
+    if (getPrefs().profileStatus === "unset") {
+      pendingDish.current = dish;
+      setProfileOpen(true);
+      return;
+    }
+    void fetchVariants(dish);
+  }
+
+  function profileDone() {
+    setProfileOpen(false);
+    const dish = pendingDish.current;
+    pendingDish.current = "";
+    if (dish) void fetchVariants(dish);
+  }
+
   function applyStage(target: Stage) {
     requestId.current++;
+    // Never leave a modal over a screen the user navigated away from.
+    setProfileOpen(false);
     if (resetOnPop.current) {
       resetOnPop.current = false;
       setQuery("");
@@ -181,7 +204,7 @@ export function Flow({
     setChoice(null);
     setList(null);
     setCart(null);
-    void fetchVariants(trimmed);
+    askProfileOr(trimmed);
   }
 
   async function chooseStyle(variant: DishVariant) {
@@ -225,6 +248,7 @@ export function Flow({
       items: chosen,
       diet: prefs.diet,
       avoid: avoidList(prefs),
+      budget: prefs.budget,
       pincode: prefs.pincode,
       dryRun,
     };
@@ -427,6 +451,8 @@ export function Flow({
           }}
         />
       </Dialog>
+
+      <ProfileDialog open={profileOpen} onDone={profileDone} />
 
       <PayloadDialog state={payload} onClose={() => setPayload({ open: false })} />
     </main>
