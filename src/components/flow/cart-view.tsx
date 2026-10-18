@@ -234,9 +234,13 @@ export function CartView({
           // Hide items the user already added back — they now live in the cart list above.
           const stillSkipped = (status.skipped ?? []).filter((s) => !(s.line && edits.added.has(lineKey(s.line))));
           if (stillSkipped.length === 0) return null;
+          const savedFromKitchen = Math.round(stillSkipped.reduce((sum, s) => sum + (s.line?.priceInr ?? 0), 0));
           return (
             <div className="border-t border-line bg-herb/[0.04] px-5 py-4">
-              <p className="label mb-1 text-herb">Already in your kitchen</p>
+              <p className="label mb-1 flex items-center justify-between gap-2 text-herb">
+                <span>Already in your kitchen</span>
+                {savedFromKitchen > 0 && <span className="normal-case tracking-normal">saved you ~{inr(savedFromKitchen)}</span>}
+              </p>
               <p className="mb-3 text-[12.5px] leading-relaxed text-paper/55">
                 We checked your recent Zepto orders — you likely still have these, so we left them out so you don&apos;t re-buy. Need one anyway? Add it.
               </p>
@@ -283,6 +287,15 @@ export function CartView({
             <dt>Delivery</dt>
             <dd>{eff.deliveryInr ? inr(eff.deliveryInr) : "Free"}</dd>
           </div>
+          {(() => {
+            const mrpSaved = Math.round(eff.lines.reduce((s, l) => s + Math.max(0, (l.mrpInr ?? l.priceInr) - l.priceInr), 0));
+            return mrpSaved > 0 ? (
+              <div className="flex justify-between text-herb">
+                <dt>You save (off MRP)</dt>
+                <dd>−{inr(mrpSaved)}</dd>
+              </div>
+            ) : null;
+          })()}
           <div className="flex items-baseline justify-between pt-1 text-paper">
             <dt className="uppercase tracking-[0.12em]">Total</dt>
             <dd className="dots text-[22px]">{inr(eff.totalInr)}</dd>

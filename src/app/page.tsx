@@ -27,7 +27,7 @@ const JSON_LD = {
   offers: { "@type": "Offer", price: "0", priceCurrency: "INR" },
 };
 
-const TITLES = ["Mise", "Problem", "Product", "How it works", "Four ways", "Under the hood", "Stores", "Try it"];
+const TITLES = ["Mise", "About", "Product", "How it works", "Four ways", "Under the hood", "Stores", "Try it"];
 
 const reveal = (step: number) => ({ "--d": step }) as CSSProperties;
 
@@ -69,15 +69,15 @@ const FRICTION = [
 const STEPS = [
   ["Dish", "You", "Type anything: “rajma chawal”, “that creamy pasta”."],
   ["Style", "You", "Restaurant, basic, healthy or protein-rich, tuned to your age, diet and protein target."],
-  ["List", "Gemini", "Exact quantities for your servings; pantry staples and items already in your Zepto history are skipped. Untick anything else you have."],
+  ["List", "Gemini", "Exact quantities for your servings. Staples and items already in your Zepto history are skipped; untick anything else you have."],
   ["Cart", "Gemini + Mise", "Gemini picks the best Zepto product per ingredient for your style and budget, with a short why-this-pick. Mise builds the cart live on Zepto."],
   ["Door", "Mise", "You review and edit, then Mise orders on its own Zepto account and delivers to your address."],
 ];
 
 const PIPELINE = [
   ["You", "“white sauce pasta”"],
-  ["Gemini 3.5 Flash-Lite", "Four takes on the dish"],
-  ["Gemini 3.8 Flash", "Ingredient list against a JSON schema"],
+  ["Gemini Flash-Lite", "Four takes on the dish"],
+  ["Gemini Flash", "Ingredient list against a JSON schema"],
   ["Mise engine", "Searches live Zepto; Gemini picks the best product per item"],
   ["Cart", "Built in-process, your kitchen staples already skipped"],
   ["Zepto", "Order placed and delivered to your door"],
@@ -143,15 +143,15 @@ export default function Landing() {
                 What do you want to eat today?
               </h1>
               <p className="reveal mt-7 max-w-md text-[17px] leading-relaxed text-paper/60" style={reveal(2)}>
-                Type a dish. Mise tailors it to your profile and protein target, writes the exact grocery list with
-                Gemini, then builds the cart on live Zepto and delivers it to your door.
+                Type a dish. Mise tailors the recipe to your profile and protein target, Gemini picks each
+                product on live Zepto, and it&apos;s delivered to your door.
               </p>
               <div className="reveal mt-9 flex flex-wrap gap-3" style={reveal(3)}>
                 <Link href="/app" className="btn-accent h-12 px-6">
                   Open mise <ArrowRight size={18} />
                 </Link>
-                <a href="#problem" className="btn-ghost h-12 px-6">
-                  How it works <ArrowDown size={17} />
+                <a href="#about" className="btn-ghost h-12 px-6">
+                  About <ArrowDown size={17} />
                 </a>
               </div>
             </div>
@@ -162,7 +162,7 @@ export default function Landing() {
           <dl className="reveal mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3" style={reveal(4)}>
             {[
               ["Styles", "Restaurant · Basic · Healthy · Protein"],
-              ["Model", "Gemini 3.8 Flash, structured output"],
+              ["Model", "Gemini Flash, structured output"],
               ["Store", "Zepto, more planned"],
             ].map(([k, v]) => (
               <div key={k} className="bg-ink px-5 py-4">
@@ -173,9 +173,12 @@ export default function Landing() {
           </dl>
         </Slide>
 
-        {/* 02 · Problem */}
-        <Slide id="problem">
-          <div className="grid gap-12 md:grid-cols-[1fr_0.9fr] md:items-center md:gap-16">
+        {/* 02 · About — the problem, the product, the pipeline */}
+        <Slide id="about">
+          <p className="reveal label text-saffron" style={reveal(0)}>
+            About · how Mise works
+          </p>
+          <div className="mt-8 grid gap-12 md:grid-cols-[1fr_0.9fr] md:items-center md:gap-16">
             <div>
               <Kicker n={1}>Problem</Kicker>
               <H2>A recipe is not a shopping list.</H2>
@@ -215,9 +218,8 @@ export default function Landing() {
               <Kicker n={2}>Product</Kicker>
               <H2>Mise does the translating.</H2>
               <p className="reveal mt-6 max-w-md text-[17px] leading-relaxed text-paper/55" style={reveal(2)}>
-                Pick the version you&apos;re in the mood for. Gemini sizes it to your profile and protein target, skips
-                what&apos;s already in your kitchen from your Zepto history, chooses the best product for each ingredient
-                with a reason, and delivers it to your door.
+                Pick the version you&apos;re in the mood for. Gemini sizes it to your profile and protein target,
+                skips what you already have, and picks each product with a reason. Then it lands at your door.
               </p>
             </div>
             <div className="reveal flex justify-center md:justify-end" style={reveal(2)}>

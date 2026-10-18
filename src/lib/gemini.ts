@@ -164,8 +164,77 @@ function offlineIngredients(input: IngredientsInput, source: Offline): Ingredien
   return feedIngredients(dish, input.style, input.servings, source);
 }
 
+// ── In-memory response cache ───────────────────────────────────────────────
+// Caches only successful Gemini results to save API quota and speed up repeat
+// requests (e.g. the same popular dish during judging). In-memory only: it lives
+// in the server process and is lost on restart. TTL-bounded with a simple cap so
+// a transient Gemini outage never leaves an offline result stuck in cache.
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const CACHE_MAX_ENTRIES = 200;
+
+interface CacheEntry<T> {
+  value: T;
+  expiresAt: number;
+}
+
+const responseCache = new Map<string, CacheEntry<unknown>>();
+
+function cacheGet<T>(key: string): T | undefined {
+  const entry = responseCache.get(key);
+  if (!entry) return undefined;
+  if (entry.expiresAt <= Date.now()) {
+    responseCache.delete(key);
+    return undefined;
+  }
+  return entry.value as T;
+}
+
+function cacheSet<T>(key: string, value: T): void {
+  responseCache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
+  // Map preserves insertion order, so the first key is the oldest. Evict oldest
+  // first when over the cap.
+  while (responseCache.size > CACHE_MAX_ENTRIES) {
+    const oldest = responseCache.keys().next().value;
+    if (oldest === undefined) break;
+    responseCache.delete(oldest);
+  }
+}
+
+function variantsCacheKey({ query, diet, avoid, budget, proteinTargetG }: VariantsInput): string {
+  return JSON.stringify([
+    "variants",
+    query.trim().toLowerCase(),
+    diet,
+    [...avoid].sort(),
+    budget,
+    proteinTargetG,
+  ]);
+}
+
+// Note: IngredientsInput carries no proteinTargetG, so it isn't part of this key.
+function ingredientsCacheKey(input: IngredientsInput): string {
+  return JSON.stringify([
+    "ingredients",
+    input.dish,
+    input.cuisine,
+    input.style,
+    input.variant.title,
+    input.servings,
+    input.diet,
+    [...input.avoid].sort(),
+    input.budget,
+  ]);
+}
+
 export async function getVariants({ query, diet, avoid, budget, proteinTargetG }: VariantsInput): Promise<VariantsResult> {
   if (!ai) return offlineVariants(query, "sample");
+
+  const cacheKey = variantsCacheKey({ query, diet, avoid, budget, proteinTargetG });
+  const cached = cacheGet<VariantsResult>(cacheKey);
+  if (cached) {
+    console.info(`[gemini] cache hit: variants "${query}"`);
+    return cached;
+  }
 
   const prompt = variantsPrompt({ query, diet, avoid, budget, proteinTargetG });
 
@@ -183,7 +252,7 @@ export async function getVariants({ query, diet, avoid, budget, proteinTargetG }
   const byStyle = new Map(
     (Array.isArray(raw.variants) ? raw.variants : []).map((v) => [record(v).style, record(v)] as const),
   );
-  return {
+  const result: VariantsResult = {
     ok: true,
     source: "gemini",
     dish: str(raw.dish, query, 60),
@@ -203,10 +272,20 @@ export async function getVariants({ query, diet, avoid, budget, proteinTargetG }
       };
     }),
   };
+  // Only successful Gemini results reach here (ok === true, source === "gemini").
+  cacheSet(cacheKey, result);
+  return result;
 }
 
 export async function getIngredients(input: IngredientsInput): Promise<IngredientsOk> {
   if (!ai) return offlineIngredients(input, "sample");
+
+  const cacheKey = ingredientsCacheKey(input);
+  const cached = cacheGet<IngredientsOk>(cacheKey);
+  if (cached) {
+    console.info(`[gemini] cache hit: ingredients "${input.dish}"`);
+    return cached;
+  }
 
   const prompt = ingredientsPrompt(input);
 
@@ -242,7 +321,7 @@ export async function getIngredients(input: IngredientsInput): Promise<Ingredien
     });
 
   if (!items.length) return fallback("empty ingredient list");
-  return {
+  const result: IngredientsOk = {
     ok: true,
     source: "gemini",
     dish: input.dish,
@@ -251,6 +330,10 @@ export async function getIngredients(input: IngredientsInput): Promise<Ingredien
     tip: str(raw.tip, "", 200),
     items,
   };
+  // Only successful Gemini results reach here (source === "gemini"); offline
+  // fallbacks return earlier via fallback() and are never cached.
+  cacheSet(cacheKey, result);
+  return result;
 }
 
 // ── Product selection ────────────────────────────────────────────────────────

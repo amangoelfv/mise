@@ -2,21 +2,18 @@ import { createHash } from "node:crypto";
 import { cookies } from "next/headers";
 
 /**
- * Lightweight password gate for the operator-only /admin path. The page is first
- * gated by ADMIN_ENABLED; when ADMIN_PASSWORD is also set, an unguessable cookie
- * (sha256 of the password) must match. No password set → ADMIN_ENABLED alone gates
- * (dev convenience).
+ * Lightweight gate for the operator-only /admin path. The page exists only when
+ * ADMIN_PASSWORD is set, and that password is the gate: logging in stores an
+ * unguessable cookie (sha256 of the password) that must match. No password → no
+ * admin page (404). No separate ADMIN_ENABLED flag needed.
  */
 
 const COOKIE = "mise_admin";
 const PASSWORD = process.env.ADMIN_PASSWORD;
 
+/** Admin is available iff an operator password is configured. */
 export function adminEnabled(): boolean {
-  return process.env.ADMIN_ENABLED === "1";
-}
-
-export function adminPasswordRequired(): boolean {
-  return adminEnabled() && !!PASSWORD;
+  return !!PASSWORD;
 }
 
 function cookieToken(): string | null {
@@ -24,9 +21,8 @@ function cookieToken(): string | null {
 }
 
 export async function isAdmin(): Promise<boolean> {
-  if (!adminEnabled()) return false;
   const expected = cookieToken();
-  if (!expected) return true; // enabled but no password configured
+  if (!expected) return false; // no password configured → admin off
   const store = await cookies();
   return store.get(COOKIE)?.value === expected;
 }
