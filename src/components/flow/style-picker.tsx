@@ -1,5 +1,7 @@
 "use client";
 
+import { mealProteinShareG, proteinTargetG } from "@/lib/nutrition";
+import { usePrefs } from "@/lib/prefs";
 import { DISH_STYLES } from "@/lib/styles";
 import type { DishVariant, Source, VariantsOk } from "@/lib/types";
 import { DishIdeas } from "../dish-input";
@@ -32,6 +34,10 @@ export function StylePicker({
   onEdit: () => void;
   onPickDish: (dish: string) => void;
 }) {
+  const prefs = usePrefs();
+  const target = proteinTargetG(prefs.ageBand, prefs.weightKg);
+  const share = target === null ? null : mealProteinShareG(target);
+
   if (error) {
     return (
       <section className="animate-rise mx-auto mt-8 flex max-w-md flex-col items-center text-center">
@@ -106,7 +112,13 @@ export function StylePicker({
                   <p className="mt-5 flex flex-wrap gap-x-4 gap-y-1 border-t border-dotted border-paper/15 pt-4 font-mono text-[11.5px] uppercase tracking-[0.08em] text-paper/50">
                     <span>{variant.timeMinutes} min</span>
                     {variant.kcalPerServing > 0 && <span>{variant.kcalPerServing} kcal</span>}
-                    {variant.proteinGrams > 0 && <span>{variant.proteinGrams} g protein</span>}
+                    {variant.proteinGrams > 0 && (
+                      <span className={share !== null && variant.proteinGrams >= share ? "text-herb" : undefined}>
+                        {share === null
+                          ? `${variant.proteinGrams} g protein`
+                          : `${variant.proteinGrams} / ${share} g protein`}
+                      </span>
+                    )}
                   </p>
                 </>
               ) : (
@@ -125,7 +137,9 @@ export function StylePicker({
           );
         })}
       </div>
-      <p className="mt-5 text-center font-mono text-[11.5px] text-paper/30">Estimates per serving. Pick one to get the exact list.</p>
+      <p className="mt-5 text-center font-mono text-[11.5px] text-paper/30">
+        Estimates per serving.{share !== null && ` Protein shown against your ${share} g meal share.`} Pick one to get the exact list.
+      </p>
     </section>
   );
 }
