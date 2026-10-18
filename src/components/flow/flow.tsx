@@ -136,6 +136,8 @@ export function Flow({
       askProfileOr(initialQuery);
     } else {
       replaceStep("ask");
+      // New here? Ask the quick profile first — before the dish — so suggestions are tailored from the start.
+      if (getPrefs().profileStatus === "unset") setProfileOpen(true);
     }
   });
   const booted = useRef(false);
@@ -432,6 +434,9 @@ export function Flow({
           <h1 className="display animate-rise mt-4 text-center text-[clamp(2.3rem,6vw,4rem)] [animation-delay:60ms]">
             What do you want to eat today?
           </h1>
+          <p className="animate-rise mx-auto mt-5 max-w-xl text-center text-[15px] leading-relaxed text-paper/55 [animation-delay:90ms]">
+            Tailored to your nutrition &amp; budget, minus what&apos;s already in your kitchen — built on live Zepto and delivered to your door.
+          </p>
           {/* z-20: the autocomplete list must sit above the animated siblings below it */}
           <div className="animate-rise relative z-20 mt-12 w-full [animation-delay:120ms]">
             <DishInput value={query} onChange={setQuery} onSubmit={askDish} catalog={catalog} autoFocus />

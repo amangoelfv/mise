@@ -6,6 +6,7 @@ import { HEIGHT_CM, WEIGHT_KG, mealProteinShareG, proteinTargetG, type AgeBand }
 import { AGE_BAND_OPTIONS, BUDGET_OPTIONS, DIET_OPTIONS } from "@/lib/options";
 import { getPrefs, updatePrefs } from "@/lib/prefs";
 import { Dialog } from "../dialog";
+import { Minus, Plus } from "../icons";
 
 const CHIP = "rounded-[10px] border px-3.5 py-1.5 text-[13.5px] transition";
 const CHIP_ON = "border-saffron bg-saffron text-ink";
@@ -42,6 +43,7 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
   const [diet, setDiet] = useState<Diet>(start.diet);
   const [skipStaples, setSkipStaples] = useState(start.skipStaples);
   const [budget, setBudget] = useState<BudgetPreference>(start.budget);
+  const [servings, setServings] = useState(start.servings);
 
   const weightKg = parseInRange(weight, WEIGHT_KG);
   const target = proteinTargetG(ageBand, weightKg);
@@ -67,6 +69,7 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
       diet,
       skipStaples,
       budget,
+      servings,
       profileStatus: "saved",
     });
 
@@ -75,8 +78,8 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
   return (
     <Dialog open={open} onClose={skip} title="Cook it your way" focusFirstField={false}>
       <p className="-mt-2 mb-6 text-[14px] leading-relaxed text-paper/55">
-        Five quick answers and Mise tailors every suggestion to you. Skip and we&apos;ll use sensible defaults — you
-        can fill this in under Settings whenever.
+        A few quick answers and Mise tailors every suggestion to you. Skip and we&apos;ll use sensible defaults — you
+        can change this under Settings whenever.
       </p>
 
       <div className="space-y-6">
@@ -93,6 +96,30 @@ export function ProfileDialog({ open, onDone }: { open: boolean; onDone: () => v
               {option.label}
             </button>
           ))}
+        </Group>
+
+        <Group label="Serves — how many people?">
+          <div className="flex items-center rounded-[10px] border border-line">
+            <button
+              type="button"
+              aria-label="Fewer servings"
+              disabled={servings <= 1}
+              onClick={() => setServings(Math.max(1, servings - 1))}
+              className="grid size-9 place-items-center text-paper/60 transition hover:text-paper disabled:opacity-30"
+            >
+              <Minus size={14} />
+            </button>
+            <span className="dots w-8 text-center text-[18px] leading-none">{servings}</span>
+            <button
+              type="button"
+              aria-label="More servings"
+              disabled={servings >= 12}
+              onClick={() => setServings(Math.min(12, servings + 1))}
+              className="grid size-9 place-items-center text-paper/60 transition hover:text-paper disabled:opacity-30"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
         </Group>
 
         <div className="grid grid-cols-2 gap-3">

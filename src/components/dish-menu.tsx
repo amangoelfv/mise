@@ -14,7 +14,7 @@ export function VegMark({ veg, size = 12 }: { veg: boolean; size?: number }) {
   );
 }
 
-/** The built-in menu, printed like a restaurant card: grouped, dotted leaders, filter by section or veg. */
+/** The built-in menu, laid out like an inviting card menu: grouped by section, each dish a tappable card. */
 export function DishMenu({ catalog, onPick }: { catalog: CatalogDish[]; onPick: (dish: string) => void }) {
   const [group, setGroup] = useState<MenuGroup | "All">("All");
   const [vegOnly, setVegOnly] = useState(false);
@@ -48,23 +48,36 @@ export function DishMenu({ catalog, onPick }: { catalog: CatalogDish[]; onPick: 
         </button>
       </div>
 
-      <div className="mt-6 columns-1 gap-10 md:columns-2">
+      <div className="mt-7 space-y-8">
         {sections.map(({ group: g, dishes }) => (
-          <div key={g} className="mb-8 break-inside-avoid">
-            <h3 className="label mb-2 text-saffron">{g}</h3>
-            <ul>
+          <div key={g}>
+            {/* Section header: saffron label, a hairline rule, and a count so each category reads clearly. */}
+            <div className="mb-3 flex items-center gap-3">
+              <h3 className="label text-saffron">{g}</h3>
+              <span aria-hidden className="flex-1 border-t border-dashed border-paper/10" />
+              <span className="label text-paper/30">{dishes.length}</span>
+            </div>
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {dishes.map((dish) => (
-                <li key={dish.id}>
-                  <button type="button" onClick={() => onPick(dish.name)} className="group w-full py-2 text-left">
-                    <span className="flex items-baseline gap-2.5">
-                      <span className="translate-y-[1px]">
+                <li key={dish.id} className="flex">
+                  <button
+                    type="button"
+                    onClick={() => onPick(dish.name)}
+                    className="group flex h-full w-full flex-col gap-2 rounded-2xl border border-line bg-ink-2 p-4 text-left transition duration-200 hover:border-saffron/40 hover:bg-ink-3 focus-visible:border-saffron/40"
+                  >
+                    <span className="flex items-start gap-2.5">
+                      <span className="mt-[3px]">
                         <VegMark veg={dish.veg} />
                       </span>
-                      <span className="shrink-0 text-[15.5px] transition group-hover:text-saffron">{dish.name}</span>
-                      <span className="leader" />
-                      <span className="shrink-0 font-mono text-[12px] text-paper/45">from {dish.minutes} min</span>
+                      <span className="min-w-0 flex-1 text-[15.5px] font-medium leading-snug tracking-[-0.01em] transition group-hover:text-saffron">
+                        {dish.name}
+                      </span>
                     </span>
-                    <span className="mt-0.5 block pl-[22px] text-[12.5px] text-paper/35">{dish.cuisine}</span>
+                    <span className="line-clamp-2 pl-[22px] text-[12.5px] leading-relaxed text-paper/45">{dish.summary}</span>
+                    <span className="mt-auto flex items-baseline gap-2 pl-[22px] pt-0.5 font-mono text-[11px]">
+                      <span className="min-w-0 flex-1 truncate text-paper/35">{dish.cuisine}</span>
+                      <span className="shrink-0 text-paper/30">from {dish.minutes} min</span>
+                    </span>
                   </button>
                 </li>
               ))}
