@@ -74,6 +74,12 @@ const STEPS = [
   ["Door", "Mise", "You review and edit, then Mise orders on its own Zepto account and delivers to your address."],
 ];
 
+const DIFFERENTIATORS: [string, string][] = [
+  ["Nutrition", "Your age sets a daily protein target that tunes every recipe."],
+  ["Affordability", "Your budget preference steers which product gets picked."],
+  ["Inventory-aware", "Skips what you already bought on Zepto — real ₹ saved."],
+];
+
 const PIPELINE = [
   ["You", "“white sauce pasta”"],
   ["Gemini Flash-Lite", "Four takes on the dish"],
@@ -186,6 +192,10 @@ export default function Landing() {
                 Recipes count in cups and pinches, usually for four. Grocery apps sell packs, one search at a time.
                 Someone has to translate between the two, and tonight that someone is you.
               </p>
+              <p className="reveal mt-7 max-w-md border-l-2 border-saffron/40 pl-4 text-[14.5px] leading-relaxed text-paper/50" style={reveal(3)}>
+                Mise makes that translation affordable and nutrition-smart for everyday Indian kitchens — in step with
+                zero hunger (SDG&nbsp;2) and good health (SDG&nbsp;3).
+              </p>
             </div>
             <div className="reveal receipt px-6 py-5" style={reveal(2)}>
               <div className="flex items-center justify-between border-b border-dashed border-paper/15 pb-3">
@@ -226,6 +236,14 @@ export default function Landing() {
               <TypingDemo />
             </div>
           </div>
+          <dl className="reveal mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3" style={reveal(3)}>
+            {DIFFERENTIATORS.map(([k, v]) => (
+              <div key={k} className="bg-ink px-5 py-5">
+                <dt className="text-[15px] font-semibold text-saffron [font-stretch:108%]">{k}</dt>
+                <dd className="mt-2 text-[14px] leading-relaxed text-paper/60">{v}</dd>
+              </div>
+            ))}
+          </dl>
         </Slide>
 
         {/* 04 · How it works */}
@@ -315,8 +333,8 @@ export default function Landing() {
               <Kicker n={5}>Under the hood</Kicker>
               <H2>Gemini answers in JSON, not prose.</H2>
               <p className="reveal mt-6 max-w-md text-[16.5px] leading-relaxed text-paper/55" style={reveal(2)}>
-                Both Gemini calls use structured output against a JSON schema, so every answer is machine-readable. Mise
-                turns the list into a versioned cart contract that any store integration can implement.
+                Gemini structured output gives a validated, profile-aware grocery list, then a chosen product for every
+                ingredient, each with a reason. Mise turns that into a versioned cart contract any store can implement.
               </p>
               <ol className="reveal mt-9" style={reveal(3)}>
                 {PIPELINE.map(([name, detail], i) => (
