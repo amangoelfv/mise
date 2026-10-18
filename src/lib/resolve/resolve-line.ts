@@ -94,8 +94,7 @@ export function resolveLine(
     line: {
       ingredientId: item.id,
       productId: best.productVariantId,
-      name: best.name,
-      ...(best.brand ? { brand: best.brand } : {}),
+      name: best.name, // Zepto product name already includes the brand
       packSize: best.packSize,
       quantity,
       priceInr: round2(unitInr * quantity), // line total (contract: price × quantity)
