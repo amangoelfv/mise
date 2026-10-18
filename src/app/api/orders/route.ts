@@ -71,7 +71,7 @@ export async function POST(req: Request) {
   return Response.json({ order: { id: created.id, status: created.status, etaMinutes: created.etaMinutes } });
 }
 
-/** List orders. Operators (ADMIN_ENABLED) see all; everyone else sees their own. */
+/** List orders. Admins (valid ADMIN_PASSWORD cookie) see all; everyone else sees their own. */
 export async function GET() {
   const user = await requireUser();
   if (user instanceof Response) return user;

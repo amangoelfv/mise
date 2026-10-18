@@ -9,8 +9,8 @@ import { orderStore } from "@/lib/orders";
 import { getConnections, getUser } from "@/lib/session";
 
 /**
- * Operator-only admin path. Gated by ADMIN_ENABLED=1, a login, and (when set) an
- * ADMIN_PASSWORD. Judges use the app via the env token override and never see this.
+ * Operator-only admin path. Exists only when ADMIN_PASSWORD is set, and that
+ * password gates it (plus a login). Judges use the env token override, never this.
  */
 async function AdminBody() {
   if (!adminEnabled()) notFound();
