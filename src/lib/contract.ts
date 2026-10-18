@@ -8,6 +8,9 @@ export const CONTRACT_VERSION = "1.0" as const;
 
 export type DishStyleId = "restaurant" | "basic" | "healthy" | "protein";
 export type Diet = "any" | "vegetarian" | "eggetarian" | "vegan" | "jain";
+export const BUDGET_PREFERENCES = ["best_rated", "best_price"] as const;
+/** How the cart service should rank candidate products for an ingredient. */
+export type BudgetPreference = (typeof BUDGET_PREFERENCES)[number];
 export type Unit = "g" | "kg" | "ml" | "l" | "pcs" | "tsp" | "tbsp" | "bunch" | "pack";
 export type IngredientCategory =
   | "produce"
@@ -74,7 +77,16 @@ export interface CartRequest {
     variantTitle: string;
     servings: number;
   };
-  preferences: { diet: Diet; avoid: string[] };
+  preferences: {
+    diet: Diet;
+    avoid: string[];
+    /**
+     * How to choose between products that both fit an ingredient.
+     * "best_rated": rank by rating. "best_price": rank by lowest price for an acceptable pack.
+     * Optional, and absent means "best_rated".
+     */
+    budget?: BudgetPreference;
+  };
   items: CartItem[];
 }
 
